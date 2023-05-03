@@ -1,113 +1,47 @@
-#define ch_forward 12 //3
-#define ch_stripe 11  //4
-#define ch_yaw 13 //1
-#define motor_FL_speed 10
-#define motor_FR_speed 9
-#define motor_BL_speed 8
-#define motor_BR_speed 7
-#define motor_FL_dir 6
-#define motor_FR_dir 5
-#define motor_BL_dir 4
-#define motor_BR_dir 3
+int motor_FL_dir;
+int motor_FR_dir;
+int motor_BL_dir;
+int motor_BR_dir;
 
-int i, forward, stripe, yaw, vector;
+void setup() {
+  pinMode(11, INPUT);
+  pinMode(12, INPUT);
+  pinMode(13, INPUT);
+  pinMode(5, OUTPUT);
+  pinMode(6, OUTPUT);
+  pinMode(7, OUTPUT);
+  pinMode(8, OUTPUT);
+  pinMode(9, OUTPUT);
+  pinMode(10, OUTPUT);
 
-void setup()
-{
-    Serial.begin(9600);
-    for (i = 13; i > 10; i--)
-    {
-        pinMode(i, INPUT);
-    }
-    for (i = 3; i < 11; i++)
-    {
-        pinMode(i, OUTPUT);
-    }
+  motor_FL_dir = 0;
+  motor_FR_dir = 0;
+  motor_BL_dir = 0;
+  motor_BR_dir = 0;
 }
 
-void loop()
-{
-    int ch_forward_pwm = map(constrain(pulseIn(ch_forward, HIGH), 1040, 1870), 1040, 1870, -100, 100);
-    int ch_stripe_pwm  = map(constrain(pulseIn(ch_stripe,  HIGH), 1115, 1780), 1115, 1780, -100, 100);
-    int ch_yaw_pwm     = map(constrain(pulseIn(ch_yaw,     HIGH),  998, 1905),  998, 1905, -100, 100);
-    
-    /*
-    unsigned long ch_forward_pwm = pulseIn(ch_forward, HIGH);
-    unsigned long ch_stripe_pwm = pulseIn(ch_stripe, HIGH);
-    unsigned long ch_yaw_pwm = pulseIn(ch_yaw, HIGH);
-     
-    Serial.print("ch_forward_pwm: ");
-    Serial.print(ch_forward_pwm);
-    Serial.print(", ");
-    Serial.print("ch_stripe_pwm: ");
-    Serial.print(ch_stripe_pwm);
-    Serial.print(", ");
-    Serial.print("ch_yaw_pwm: ");
-    Serial.println(ch_yaw_pwm);
-    */
+void loop() {
+  int forward = map(pulseIn(11, HIGH, 25000), 1040, 1870, -254, 254);
+  int stripe = map(pulseIn(12, HIGH, 25000), 1115, 1780, -254, 254);
+  int yaw = map(pulseIn(13, HIGH, 25000), 998, 1905, -254, 254);
 
-    //map deadzone
-    if(ch_forward > 4){
-        forward = ch_forward;
-    }
-    else if(ch_forward < -4){
-        forward = ch_forward;
-    }
-    else{
-        forward = 0;
-    }
+  int motor_FL_speed = map(forward - stripe - yaw, -254, 254, 0, 255);
+  int motor_FR_speed = map(forward + stripe + yaw, -254, 254, 0, 255);
+  int motor_BL_speed = map(forward + stripe - yaw, -254, 254, 0, 255);
+  int motor_BR_speed = map(forward - stripe + yaw, -254, 254, 0, 255);
 
-    if(ch_stripe > 4){
-        stripe = ch_stripe;
-    }
-    else if(ch_stripe < -4){
-        stripe = ch_stripe;
-    }
-    else{
-        stripe = 0;
-    }
+  analogWrite(5, motor_FL_speed);
+  analogWrite(6, motor_FR_speed);
+  analogWrite(9, motor_BL_speed);
+  analogWrite(10, motor_BR_speed);
 
-    if(ch_yaw > 4){
-        yaw = ch_yaw;
-    }
-    else if(ch_yaw < -4){
-        yaw = ch_yaw;
-    }
-    else{
-        yaw = 0;
-    }
+  motor_FL_dir = (forward - stripe - yaw >= 0) ? HIGH : LOW;
+  motor_FR_dir = (forward + stripe + yaw >= 0) ? HIGH : LOW;
+  motor_BL_dir = (forward + stripe - yaw >= 0) ? HIGH : LOW;
+  motor_BR_dir = (forward - stripe + yaw >= 0) ? HIGH : LOW;
 
-    int temp[] = {forward - stripe + yaw, forward + stripe - yaw, forward + stripe + yaw, forward - stripe - yaw};
-    int vector[4] = {map(temp, -300, 300, 0, 255)};
-    if(vector[0] > 0){
-        motor_FL_dir = HIGH;
-    }
-    else if(vector[0] < 0){
-        motor_FL_dir = LOW;
-    }
-    if(vector[1] > 0){
-        motor_FR_dir = HIGH;
-    }
-    else if(vector[1] < 0){
-        motor_FR_dir = LOW;
-    }
-    if(vector[2] > 0){
-        motor_BL_dir = HIGH;
-    }
-    else if(vector[2] < 0){
-        motor_BL_dir = LOW;
-    }
-    if(vector[3] > 0){
-        motor_BR_dir = HIGH;
-    }
-    else if(vector[3] < 0){
-        motor_BR_dir = LOW;
-    }
-    /*
-    figure out which channel is throtle and wich channel is yaw
-    and set dir pin acordingly
-
-    transform pwm value to movement vector and yaw vector
-    then figure out pwm for each motor
-    */
+  digitalWrite(7, motor_FL_dir);
+  digitalWrite(8, motor_FR_dir);
+  digitalWrite(11, motor_BL_dir);
+  digitalWrite(12, motor_BR_dir);
 }
