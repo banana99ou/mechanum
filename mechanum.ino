@@ -1,25 +1,23 @@
-int motor_FL_dir;
-int motor_FR_dir;
-int motor_BL_dir;
-int motor_BR_dir;
+int motor_FL_dir_Pin = 4;
+int FL_speed = 5;
+int motor_FR_dir_Pin = 2;
+int FR_speed = 3;
+int motor_BL_dir_Pin = 7;
+int BL_speed = 8;
+int motor_BR_dir_Pin = 9;
+int BR_speed = 10;
+
+int i = 0;
 
 void setup() {
   Serial.begin(9600);
 
-  pinMode(11, INPUT);
-  pinMode(12, INPUT);
-  pinMode(13, INPUT);
-  pinMode(5, OUTPUT);
-  pinMode(6, OUTPUT);
-  pinMode(7, OUTPUT);
-  pinMode(8, OUTPUT);
-  pinMode(9, OUTPUT);
-  pinMode(10, OUTPUT);
-
-  motor_FL_dir = 0;
-  motor_FR_dir = 0;
-  motor_BL_dir = 0;
-  motor_BR_dir = 0;
+  for(i=0; i<12; i++){
+    pinMode(i, OUTPUT);
+  }
+  for(i=11; i<14; i++){
+    pinMode(i, INPUT);
+  }
 }
 
 void loop() {
@@ -27,32 +25,46 @@ void loop() {
   int stripe = map(pulseIn(12, HIGH, 25000), 1115, 1780, -254, 254);
   int yaw = map(pulseIn(13, HIGH, 25000), 998, 1905, -254, 254);
 
-  int motor_FL_speed = map(forward - stripe - yaw, -254, 254, 0, 255);
-  int motor_FR_speed = map(forward + stripe + yaw, -254, 254, 0, 255);
-  int motor_BL_speed = map(forward + stripe - yaw, -254, 254, 0, 255);
-  int motor_BR_speed = map(forward - stripe + yaw, -254, 254, 0, 255);
+  //Serial.print(forward);
+  if(abs(forward) < 10){
+    forward = 0;
+  }
+  //Serial.println(forward);
+  if(abs(stripe) < 10){
+    stripe = 0;
+  }
+  if(abs(yaw) < 10){
+    yaw = 0;
+  }
 
-  Serial.print("motor FL");
+  int motor_FL_speed = map(forward - stripe - yaw, -254*3, 254*3, -254, 254);
+  int motor_FR_speed = map(forward + stripe + yaw, -254*3, 254*3, -254, 254);
+  int motor_BL_speed = map(forward + stripe - yaw, -254*3, 254*3, -254, 254);
+  int motor_BR_speed = map(forward - stripe + yaw, -254*3, 254*3, -254, 254);
+
+  /*
+  Serial.print("motor FL ");
   Serial.print(motor_FL_speed);
-  Serial.print("motor FR");
+  Serial.print(", motor FR ");
   Serial.print(motor_FR_speed);
-  Serial.print("motor BL");
+  Serial.print(", motor BL ");
   Serial.print(motor_BL_speed);
-  Serial.print("motor BR");
-  Serial.print(motor_BR_speed);
+  Serial.print(", motor BR ");
+  Serial.println(motor_BR_speed);
+  */
 
-  analogWrite(5, abs(motor_FL_speed));
-  analogWrite(6, abs(motor_FR_speed));
-  analogWrite(9, abs(motor_BL_speed));
-  analogWrite(10, abs(motor_BR_speed));
+  analogWrite(FL_speed, abs(motor_FL_speed));
+  analogWrite(FR_speed, abs(motor_FR_speed));
+  analogWrite(BL_speed, abs(motor_BL_speed));
+  analogWrite(BR_speed, abs(motor_BR_speed));
 
-  motor_FL_dir = (forward - stripe - yaw >= 0) ? HIGH : LOW;
-  motor_FR_dir = (forward + stripe + yaw >= 0) ? HIGH : LOW;
-  motor_BL_dir = (forward + stripe - yaw >= 0) ? HIGH : LOW;
-  motor_BR_dir = (forward - stripe + yaw >= 0) ? HIGH : LOW;
+  int motor_FL_dir = (forward - stripe - yaw >= 0) ? HIGH : LOW;
+  int motor_FR_dir = (forward + stripe + yaw >= 0) ? HIGH : LOW;
+  int motor_BL_dir = (forward + stripe - yaw >= 0) ? HIGH : LOW;
+  int motor_BR_dir = (forward - stripe + yaw >= 0) ? HIGH : LOW;
 
-  digitalWrite(7, motor_FL_dir);
-  digitalWrite(8, motor_FR_dir);
-  digitalWrite(11, motor_BL_dir);
-  digitalWrite(12, motor_BR_dir);
+  digitalWrite(motor_FL_dir_Pin, motor_FL_dir);
+  digitalWrite(motor_FR_dir_Pin, motor_FR_dir);
+  digitalWrite(motor_BL_dir_Pin, motor_BL_dir);
+  digitalWrite(motor_BR_dir_Pin, motor_BR_dir);
 }
