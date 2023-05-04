@@ -4,6 +4,8 @@ int motor_BL_dir;
 int motor_BR_dir;
 
 void setup() {
+  Serial.begin(9600);
+
   pinMode(11, INPUT);
   pinMode(12, INPUT);
   pinMode(13, INPUT);
@@ -30,10 +32,19 @@ void loop() {
   int motor_BL_speed = map(forward + stripe - yaw, -254, 254, 0, 255);
   int motor_BR_speed = map(forward - stripe + yaw, -254, 254, 0, 255);
 
-  analogWrite(5, motor_FL_speed);
-  analogWrite(6, motor_FR_speed);
-  analogWrite(9, motor_BL_speed);
-  analogWrite(10, motor_BR_speed);
+  Serial.print("motor FL");
+  Serial.print(motor_FL_speed);
+  Serial.print("motor FR");
+  Serial.print(motor_FR_speed);
+  Serial.print("motor BL");
+  Serial.print(motor_BL_speed);
+  Serial.print("motor BR");
+  Serial.print(motor_BR_speed);
+
+  analogWrite(5, abs(motor_FL_speed));
+  analogWrite(6, abs(motor_FR_speed));
+  analogWrite(9, abs(motor_BL_speed));
+  analogWrite(10, abs(motor_BR_speed));
 
   motor_FL_dir = (forward - stripe - yaw >= 0) ? HIGH : LOW;
   motor_FR_dir = (forward + stripe + yaw >= 0) ? HIGH : LOW;
