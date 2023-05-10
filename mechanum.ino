@@ -83,7 +83,7 @@ void loop() {
   int motor_BL_dir = (forward + stripe + yaw >= 0) ? LOW : HIGH;
   int motor_BR_dir = (forward - stripe - yaw >= 0) ? LOW : HIGH;
 
-  /*
+  
   Serial.print(motor_FL_dir);
   Serial.print(", ");
   Serial.print(motor_FR_dir);
@@ -91,7 +91,7 @@ void loop() {
   Serial.print(motor_BL_dir);
   Serial.print(", ");
   Serial.println(motor_BR_dir);
-  */
+  
 
   analogWrite(FL_speed, abs(motor_FL_speed));
   analogWrite(FR_speed, abs(motor_FR_speed));
