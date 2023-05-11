@@ -29,11 +29,11 @@ void setup() {
 void loop() {
   int forward_raw = constrain(pulseIn(12, HIGH), 1044, 1885);
   int stripe_raw = constrain(pulseIn(13, HIGH), 1135, 1800);
-  int yaw_raw = constrain(pulseIn(11, HIGH, 25000), 1011, 1850);
+  int yaw_raw = constrain(pulseIn(11, HIGH, 25000), 1013, 1941);
 
   int forward = map(forward_raw, 1044, 1885, -254, 254);
   int stripe = map(stripe_raw, 1135, 1800, -254, 254);
-  int yaw = map(yaw_raw, 1011, 1850, -254, 254);
+  int yaw = map(yaw_raw, 1013, 1941, -254, 254);
 
   //Serial.print(forward);
   if(abs(forward) < 24){
@@ -54,7 +54,7 @@ void loop() {
   Serial.print(", ");
   Serial.print(yaw);
   Serial.println(", ");
-  */ 
+  */
   
   //Serial.print(stripe);
   //Serial.print(", ");
@@ -68,7 +68,7 @@ void loop() {
   motor_BL_speed = map(forward + stripe + yaw, -254*3, 254*3, -254, 254);
   motor_BR_speed = map(forward - stripe - yaw, -254*3, 254*3, -254, 254);
 
-   
+  
   Serial.print(motor_FL_speed);
   Serial.print(", ");
   Serial.print(motor_FR_speed);
@@ -76,14 +76,14 @@ void loop() {
   Serial.print(motor_BL_speed);
   Serial.print(", ");
   Serial.println(motor_BR_speed);
-   
+  
   
   int motor_FL_dir = (forward - stripe + yaw >= 0) ? HIGH : LOW;
   int motor_FR_dir = (forward + stripe - yaw >= 0) ? HIGH : LOW;
   int motor_BL_dir = (forward + stripe + yaw >= 0) ? LOW : HIGH;
   int motor_BR_dir = (forward - stripe - yaw >= 0) ? LOW : HIGH;
 
-  
+  /*
   Serial.print(motor_FL_dir);
   Serial.print(", ");
   Serial.print(motor_FR_dir);
@@ -91,7 +91,7 @@ void loop() {
   Serial.print(motor_BL_dir);
   Serial.print(", ");
   Serial.println(motor_BR_dir);
-  
+  */
 
   analogWrite(FL_speed, abs(motor_FL_speed));
   analogWrite(FR_speed, abs(motor_FR_speed));
