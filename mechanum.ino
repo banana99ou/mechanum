@@ -4,8 +4,8 @@ int motor_FR_dir_Pin = 2;
 int FR_speed = 3;
 int motor_BL_dir_Pin = 6;
 int BL_speed = 7;
-int motor_BR_dir_Pin = 8;
-int BR_speed = 9;
+int motor_BR_dir_Pin = 8; 
+int BR_speed = 44;
 
 
 int motor_FL_speed = 0;
@@ -21,6 +21,7 @@ void setup() {
   for(i=2; i<10; i++){
     pinMode(i, OUTPUT);
   }
+  pinMode(44, OUTPUT);
   for(i=10; i<14; i++){
     pinMode(i, INPUT);
   }
@@ -32,7 +33,7 @@ void loop() {
   int yaw_raw = constrain(pulseIn(11, HIGH, 25000), 1013, 1941);
 
   int forward = map(forward_raw, 1044, 1885, -254, 254);
-  int stripe = map(stripe_raw, 1135, 1800, -254, 254);
+  int stripe = map(stripe_raw, 1135, 1800, 254, -254);
   int yaw = map(yaw_raw, 1013, 1941, -254, 254);
 
   //Serial.print(forward);
@@ -68,14 +69,15 @@ void loop() {
   motor_BL_speed = map(forward + stripe + yaw, -254*3, 254*3, -254, 254);
   motor_BR_speed = map(forward - stripe - yaw, -254*3, 254*3, -254, 254);
 
-  
+  /*
   Serial.print(motor_FL_speed);
   Serial.print(", ");
   Serial.print(motor_FR_speed);
   Serial.print(", ");
   Serial.print(motor_BL_speed);
   Serial.print(", ");
-  Serial.println(motor_BR_speed);
+  */
+  Serial.print(motor_BR_speed);
   
   
   int motor_FL_dir = (forward - stripe + yaw >= 0) ? HIGH : LOW;
@@ -89,9 +91,10 @@ void loop() {
   Serial.print(motor_FR_dir);
   Serial.print(", ");
   Serial.print(motor_BL_dir);
+  */
   Serial.print(", ");
   Serial.println(motor_BR_dir);
-  */
+  
 
   analogWrite(FL_speed, abs(motor_FL_speed));
   analogWrite(FR_speed, abs(motor_FR_speed));
