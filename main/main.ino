@@ -1,61 +1,108 @@
-#define dir1 4
-#define pwm1 5
-#define dir2 6
-#define pwm2 7
-#define IR_FL A1
-#define IR_FR A2
-#define IR_BL A3
-#define IR_BR A4
+#define PI 3.1415926535897932384626433832795
+#define IRFL A4
+#define IRFR A5
+#define IRBL A6
+#define IRBR A7
+#define TRIG_FL 27
+#define ECHO_FL 26
+#define TRIG_FF 8
+#define ECHO_FF 9
+#define TRIG_FR 10
+#define ECHO_FR 11
+#define TRIG_L 28
+#define ECHO_L 29
+#define TRIG_R 14
+#define ECHO_R 15
+#define MASTER_ARM 17
 
-int i = 0;
 int IR_threshold_FL = 0; //need calibration //calibration function added
 int IR_threshold_FR = 0; 
 int IR_threshold_BL = 0; 
 int IR_threshold_BR = 0; 
+int Ping_bias = 0;
+int sonardata;
+int i = 0;
+
+float MY_pos[2] = {0, 0};
+float MY_heading = 90;
+float EM_pos[2] = {0, 0};
+float EM_heading = 270;
+float turn = 0;
+//int distance = 0;
+
+long duration; // variable for the duration of sound wave travel
+int distance;
 
 void setup() {
   Serial.begin(9600);
-  pinMode(IR_FL, INPUT);
-  pinMode(IR_FR, INPUT);
-  pinMode(IR_BL, INPUT);
-  pinMode(IR_BR, INPUT);
-  pinMode(pwm1, OUTPUT);
-  pinMode(dir1, OUTPUT);
-  pinMode(pwm2, OUTPUT);
-  pinMode(dir2, OUTPUT);
+  pinMode(MASTER_ARM, INPUT);
+  pinMode(TRIG_FL, OUTPUT);
+  pinMode(ECHO_FL, INPUT);
+  pinMode(TRIG_FF, OUTPUT);
+  pinMode(ECHO_FF, INPUT);
+  pinMode(TRIG_FR, OUTPUT);
+  pinMode(ECHO_FR, INPUT);
+  pinMode(TRIG_L, OUTPUT);
+  pinMode(ECHO_L, INPUT);
+  pinMode(TRIG_R, OUTPUT);
+  pinMode(ECHO_R, INPUT);
+  pinMode(IRFL, INPUT);
+  pinMode(IRFR, INPUT);
+  pinMode(IRBL, INPUT);
+  pinMode(IRBR, INPUT);
 
-  // for(i=0; i<20; i++){
-  //   if(IR_threshold_FL < analogRead(IR_FL)){
-  //       IR_threshold_FL = analogRead(IR_FL) + 100;
-  //   }
-  //   if(IR_threshold_FR < analogRead(IR_FR)){
-  //       IR_threshold_FR = analogRead(IR_FR) + 100;
-  //   }
-  //   if(IR_threshold_BL < analogRead(IR_BL)){
-  //       IR_threshold_BL = analogRead(IR_BL) + 100;
-  //   }
-  //   if(IR_threshold_BR < analogRead(IR_BR)){
-  //       IR_threshold_BR = analogRead(IR_BR) + 100;
-  //   }
-  //   Serial.print("IR Calibrating ");
-  //   Serial.print(IR_threshold_FL);
-  //   Serial.print(" ");
-  //   Serial.print(IR_threshold_FR);
-  //   Serial.print(" ");
-  //   Serial.print(IR_threshold_BL);
-  //   Serial.print(" ");
-  //   Serial.println(IR_threshold_BR);
-  // }
+  for (i = 0; i < 20; i++) {
+    if (IR_threshold_FL < analogRead(IRFL)) {
+      IR_threshold_FL = analogRead(IRFL) + 10;
+    }
+    if (IR_threshold_FR < analogRead(IRFR)) {
+      IR_threshold_FR = analogRead(IRFR) + 10;
+    }
+    if (IR_threshold_BL < analogRead(IRBL)) {
+      IR_threshold_BL = analogRead(IRBL) + 10;
+    }
+    if (IR_threshold_BR < analogRead(IRBR)) {
+      IR_threshold_BR = analogRead(IRBR) + 10;
+    }
+    Serial.print("IR Calibrating ");
+    Serial.print(IR_threshold_FL);
+    Serial.print(" ");
+    Serial.print(IR_threshold_FR);
+    Serial.print(" ");
+    Serial.print(IR_threshold_BL);
+    Serial.print(" ");
+    Serial.println(IR_threshold_BR);
+  }
 }
 
 void loop() {
-  Serial.write("wtf");
-  analogWrite(pwm1, 200);
-  analogWrite(pwm2, 200);
-  digitalWrite(dir1, HIGH);
-  digitalWrite(dir2, HIGH);
-  delay(3000);
-  digitalWrite(dir1, LOW);
-  digitalWrite(dir2, LOW);
-  delay(3000);
+  Serial.print(" Ping FF: ");
+  Serial.print(Ping(ECHO_FF, TRIG_FF));
+  Serial.print(" Ping L: ");
+  Serial.print(Ping(ECHO_L, TRIG_L));
+  Serial.print(" Ping R: ");
+  Serial.print(Ping(ECHO_R, TRIG_R));
+  Serial.print(" IR ");
+  Serial.print(analogRead(IRFL));
+  Serial.print(" ");
+  Serial.print(analogRead(IRFR));
+  Serial.print(" ");
+  Serial.print(analogRead(IRBL));
+  Serial.print(" ");
+  Serial.println(analogRead(IRBR));
+}
+
+int Ping(int echo, int trig) {
+  long duration;  //variable for the duration of sound wave travel
+  int distance;
+  digitalWrite(trig, LOW);
+  delayMicroseconds(1);
+  digitalWrite(trig, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trig, LOW);
+  // Reads the echoPin, returns the sound wave travel time in microseconds
+  duration = pulseIn(echo, HIGH);
+  // Calculating the distance
+  distance = duration * 0.34 / 2;  // Speed of sound wave divided by 2 (go and back)
+  return(distance);//mm
 }
