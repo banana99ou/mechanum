@@ -1,113 +1,108 @@
-#define ch_forward 12 //3
-#define ch_stripe 11  //4
-#define ch_yaw 13 //1
-#define motor_FL_speed 10
-#define motor_FR_speed 9
-#define motor_BL_speed 8
-#define motor_BR_speed 7
-#define motor_FL_dir 6
-#define motor_FR_dir 5
-#define motor_BL_dir 4
-#define motor_BR_dir 3
+int motor_FL_dir_Pin = 4;
+int FL_speed = 5;
+int motor_FR_dir_Pin = 2;
+int FR_speed = 3;
+int motor_BL_dir_Pin = 6;
+int BL_speed = 7;
+int motor_BR_dir_Pin = 8; 
+int BR_speed = 44;
 
-int i, forward, stripe, yaw, vector;
 
-void setup()
-{
-    Serial.begin(9600);
-    for (i = 13; i > 10; i--)
-    {
-        pinMode(i, INPUT);
-    }
-    for (i = 3; i < 11; i++)
-    {
-        pinMode(i, OUTPUT);
-    }
+int motor_FL_speed = 0;
+int motor_FR_speed = 0;
+int motor_BL_speed = 0;
+int motor_BR_speed = 0;
+
+int i = 0;
+
+void setup() {
+  Serial.begin(9600);
+
+  for(i=2; i<10; i++){
+    pinMode(i, OUTPUT);
+  }
+  pinMode(44, OUTPUT);
+  for(i=10; i<14; i++){
+    pinMode(i, INPUT);
+  }
 }
 
-void loop()
-{
-    int ch_forward_pwm = map(constrain(pulseIn(ch_forward, HIGH), 1040, 1870), 1040, 1870, -100, 100);
-    int ch_stripe_pwm  = map(constrain(pulseIn(ch_stripe,  HIGH), 1115, 1780), 1115, 1780, -100, 100);
-    int ch_yaw_pwm     = map(constrain(pulseIn(ch_yaw,     HIGH),  998, 1905),  998, 1905, -100, 100);
-    
-    /*
-    unsigned long ch_forward_pwm = pulseIn(ch_forward, HIGH);
-    unsigned long ch_stripe_pwm = pulseIn(ch_stripe, HIGH);
-    unsigned long ch_yaw_pwm = pulseIn(ch_yaw, HIGH);
-     
-    Serial.print("ch_forward_pwm: ");
-    Serial.print(ch_forward_pwm);
-    Serial.print(", ");
-    Serial.print("ch_stripe_pwm: ");
-    Serial.print(ch_stripe_pwm);
-    Serial.print(", ");
-    Serial.print("ch_yaw_pwm: ");
-    Serial.println(ch_yaw_pwm);
-    */
+void loop() {
+  int forward_raw = constrain(pulseIn(12, HIGH), 1044, 1885);
+  int stripe_raw = constrain(pulseIn(13, HIGH), 1135, 1800);
+  int yaw_raw = constrain(pulseIn(11, HIGH, 25000), 1013, 1941);
 
-    //map deadzone
-    if(ch_forward > 4){
-        forward = ch_forward;
-    }
-    else if(ch_forward < -4){
-        forward = ch_forward;
-    }
-    else{
-        forward = 0;
-    }
+  int forward = map(forward_raw, 1044, 1885, -254, 254);
+  int stripe = map(stripe_raw, 1135, 1800, 254, -254);
+  int yaw = map(yaw_raw, 1013, 1941, -254, 254);
 
-    if(ch_stripe > 4){
-        stripe = ch_stripe;
-    }
-    else if(ch_stripe < -4){
-        stripe = ch_stripe;
-    }
-    else{
-        stripe = 0;
-    }
+  //Serial.print(forward);
+  if(abs(forward) < 24){
+    forward = 0;
+  }
+  //Serial.println(forward);
+  if(abs(stripe) < 24){
+    stripe = 0;
+  }
+  if(abs(yaw) < 30){
+    yaw = 0;
+  }
 
-    if(ch_yaw > 4){
-        yaw = ch_yaw;
-    }
-    else if(ch_yaw < -4){
-        yaw = ch_yaw;
-    }
-    else{
-        yaw = 0;
-    }
+  /* 
+  Serial.print(forward);
+  Serial.print(", ");
+  Serial.print(stripe);
+  Serial.print(", ");
+  Serial.print(yaw);
+  Serial.println(", ");
+  */
+  
+  //Serial.print(stripe);
+  //Serial.print(", ");
+  
+  //Serial.println(forward_raw);
+  //Serial.print(", ");
+  
 
-    int temp[] = {forward - stripe + yaw, forward + stripe - yaw, forward + stripe + yaw, forward - stripe - yaw};
-    int vector[4] = {map(temp, -300, 300, 0, 255)};
-    if(vector[0] > 0){
-        motor_FL_dir = HIGH;
-    }
-    else if(vector[0] < 0){
-        motor_FL_dir = LOW;
-    }
-    if(vector[1] > 0){
-        motor_FR_dir = HIGH;
-    }
-    else if(vector[1] < 0){
-        motor_FR_dir = LOW;
-    }
-    if(vector[2] > 0){
-        motor_BL_dir = HIGH;
-    }
-    else if(vector[2] < 0){
-        motor_BL_dir = LOW;
-    }
-    if(vector[3] > 0){
-        motor_BR_dir = HIGH;
-    }
-    else if(vector[3] < 0){
-        motor_BR_dir = LOW;
-    }
-    /*
-    figure out which channel is throtle and wich channel is yaw
-    and set dir pin acordingly
+  motor_FL_speed = map(forward - stripe + yaw, -254*3, 254*3, -254, 254);
+  motor_FR_speed = map(forward + stripe - yaw, -254*3, 254*3, -254, 254);
+  motor_BL_speed = map(forward + stripe + yaw, -254*3, 254*3, -254, 254);
+  motor_BR_speed = map(forward - stripe - yaw, -254*3, 254*3, -254, 254);
 
-    transform pwm value to movement vector and yaw vector
-    then figure out pwm for each motor
-    */
+  /*
+  Serial.print(motor_FL_speed);
+  Serial.print(", ");
+  Serial.print(motor_FR_speed);
+  Serial.print(", ");
+  Serial.print(motor_BL_speed);
+  Serial.print(", ");
+  */
+  Serial.print(motor_BR_speed);
+  
+  
+  int motor_FL_dir = (forward - stripe + yaw >= 0) ? HIGH : LOW;
+  int motor_FR_dir = (forward + stripe - yaw >= 0) ? HIGH : LOW;
+  int motor_BL_dir = (forward + stripe + yaw >= 0) ? LOW : HIGH;
+  int motor_BR_dir = (forward - stripe - yaw >= 0) ? LOW : HIGH;
+
+  /*
+  Serial.print(motor_FL_dir);
+  Serial.print(", ");
+  Serial.print(motor_FR_dir);
+  Serial.print(", ");
+  Serial.print(motor_BL_dir);
+  */
+  Serial.print(", ");
+  Serial.println(motor_BR_dir);
+  
+
+  analogWrite(FL_speed, abs(motor_FL_speed));
+  analogWrite(FR_speed, abs(motor_FR_speed));
+  analogWrite(BL_speed, abs(motor_BL_speed));
+  analogWrite(BR_speed, abs(motor_BR_speed));
+
+  digitalWrite(motor_FL_dir_Pin, motor_FL_dir);
+  digitalWrite(motor_FR_dir_Pin, motor_FR_dir);
+  digitalWrite(motor_BL_dir_Pin, motor_BL_dir);
+  digitalWrite(motor_BR_dir_Pin, motor_BR_dir);
 }
