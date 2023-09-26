@@ -1,3 +1,3 @@
-main -> main code for robot used before
-mechanum -> for current pin layout reference
-Ping -> sonar code ref
+* _main_ -> main code for robot used before\
+* _mechanum_ -> for current pin layout reference\
+* _Ping_ -> sonar code ref\
