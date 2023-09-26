@@ -1,0 +1,1 @@
+make sensor testing program and test each sensor value systematically

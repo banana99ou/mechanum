@@ -1,5 +1,5 @@
-#define TRIG_FF 14
-#define ECHO_FF 15
+#define TRIG_FF 7
+#define ECHO_FF 6
 
 void setup() {
   Serial.begin(9600);
