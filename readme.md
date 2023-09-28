@@ -4,4 +4,8 @@
 
 * _mechanum_ -> for current pin layout reference
 
-* _Ping_ -> sonar code ref
+* _Ping_ -> sonar sensor code ref
+
+* _IR_ -> IR sensor code ref
+
+* _ref_ -> reference material
