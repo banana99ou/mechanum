@@ -7,22 +7,26 @@
 #define motor_BR_dir_Pin 8 
 #define motor_BR_pwm_Pin 44
 
+bool stringComplete;
+String inputString;
+int i = 0;
+
 void accelerate(int speed){
     /* 
     accelerate to int speed
     -255 < speed < 255
     */
     if(speed<0){ // set dir pin low when speed is smaller than 0
-        digitalwrite(motor_FL_dir_Pin, LOW);
-        digitalwrite(motor_FR_dir_Pin, LOW);
-        digitalwrite(motor_BL_dir_Pin, LOW);
-        digitalwrite(motor_BR_dir_Pin, LOW);
+        digitalWrite(motor_FL_dir_Pin, LOW);
+        digitalWrite(motor_FR_dir_Pin, LOW);
+        digitalWrite(motor_BL_dir_Pin, LOW);
+        digitalWrite(motor_BR_dir_Pin, LOW);
     }
     else if(speed>0){
-        digitalwrite(motor_FL_dir_Pin, HIGH);
-        digitalwrite(motor_FR_dir_Pin, HIGH);
-        digitalwrite(motor_BL_dir_Pin, HIGH);
-        digitalwrite(motor_BR_dir_Pin, HIGH);
+        digitalWrite(motor_FL_dir_Pin, HIGH);
+        digitalWrite(motor_FR_dir_Pin, HIGH);
+        digitalWrite(motor_BL_dir_Pin, HIGH);
+        digitalWrite(motor_BR_dir_Pin, HIGH);
     }
     else{   // set motor speed to 0 when speed is 0
         analogWrite(motor_FL_pwm_Pin, 0);
@@ -42,16 +46,16 @@ void turn(int speed){
     ccw -255 < speed < 255 cw
     */
    if(speed<0){ // turn left when speed is smaller than 0
-        digitalwrite(motor_FL_dir_Pin, LOW);  // left side go backward
-        digitalwrite(motor_FR_dir_Pin, HIGH); // right side go forward
-        digitalwrite(motor_BL_dir_Pin, LOW);
-        digitalwrite(motor_BR_dir_Pin, HIGH);
+        digitalWrite(motor_FL_dir_Pin, LOW);  // left side go backward
+        digitalWrite(motor_FR_dir_Pin, HIGH); // right side go forward
+        digitalWrite(motor_BL_dir_Pin, LOW);
+        digitalWrite(motor_BR_dir_Pin, HIGH);
     }
     else if(speed>0){
-        digitalwrite(motor_FL_dir_Pin, HIGH);
-        digitalwrite(motor_FR_dir_Pin, LOW);
-        digitalwrite(motor_BL_dir_Pin, HIGH);
-        digitalwrite(motor_BR_dir_Pin, LOW);
+        digitalWrite(motor_FL_dir_Pin, HIGH);
+        digitalWrite(motor_FR_dir_Pin, LOW);
+        digitalWrite(motor_BL_dir_Pin, HIGH);
+        digitalWrite(motor_BR_dir_Pin, LOW);
     }
     else{   // set motor speed to 0 when speed is 0
         analogWrite(motor_FL_pwm_Pin, 0);
@@ -64,6 +68,17 @@ void turn(int speed){
     analogWrite(motor_BL_pwm_Pin, abs(speed));
     analogWrite(motor_BR_pwm_Pin, abs(speed));
 }
+
+void serialEvent() {
+    while(Serial.available()){
+        char inChar = (char)Serial.read();
+        inputString += inChar;
+        if(inChar == '\n') {
+        stringComplete = true;
+        }
+    }
+}
+
 
 void setup(){
     Serial.begin(9600);
