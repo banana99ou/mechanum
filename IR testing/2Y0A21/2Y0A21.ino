@@ -1,8 +1,8 @@
 /*
-program to verify IR sensor function
-test reading from IR sensor and test threshold works
+program to verify 2Y0A21 sensor function
+test reading from 2Y0A21 sensor and test threshold works
 */
-#define IR_FL A4
+#define IR_FL A0
 #define IR_FR A5
 #define IR_BL A6
 #define IR_BR A7
@@ -13,7 +13,11 @@ int IR_threshold_FR = 0;
 int IR_threshold_BL = 0;
 int IR_threshold_BR = 0;
 
+int i = 0;
+
 void setup(){
+    Serial.begin(9600);
+  
     pinMode(IR_FL, INPUT);
     // pinMode(IR_FR, INPUT);
     // pinMode(IR_BL, INPUT);
@@ -47,34 +51,34 @@ void setup(){
 }
 
 void loop(){
-    int IR_result[0,0,0,0];
+    int IR_result[4];
     IR_result[0] = analogRead(IR_FL);
     // IR_result[1] = analogRead(IR_FR);
     // IR_result[2] = analogRead(IR_BL);
     // IR_result[3] = analogRead(IR_BR);
 
-    Serial.println(IR_result);
-    Serial.println("Is result over threshold?");
-    if(IR_result[0]>IR_threshold_FL){
-        Seiral.println("FL: yes");
-    }
-    else{
-        Serial.println("FL: no");
-    }
+    Serial.println(IR_result[0]);
+//    Serial.println("Is result over threshold?");
+//    if(IR_result[0]>IR_threshold_FL){
+//        Serial.println("FL: yes");
+//    }
+//    else{
+//        Serial.println("FL: no");
+//    }
     // if(IR_result[1]>IR_threshold_FR){
-    //     Seiral.println("FR: yes");
+    //     Serial.println("FR: yes");
     // }
     // else{
     //     Serial.println("FR: no");
     // }
     // if(IR_result[2]>IR_threshold_BL){
-    //     Seiral.println("BL: yes");
+    //     Serial.println("BL: yes");
     // }
     // else{
     //     Serial.println("BL: no");
     // }
     // if(IR_result[3]>IR_threshold_BR){
-    //     Seiral.println("BR: yes");
+    //     Serial.println("BR: yes");
     // }
     // else{
     //     Serial.println("BR: no");
