@@ -1,5 +1,5 @@
 {
-    "sketch": "mechanum.ino",
+    "sketch": "movement testing\\move\\move.ino",
     "configuration": "cpu=atmega2560",
     "board": "arduino:avr:mega",
     "port": "COM5"
