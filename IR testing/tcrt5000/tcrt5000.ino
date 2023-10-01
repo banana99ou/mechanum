@@ -3,7 +3,6 @@ program to verify trct5000 sensor function
 test reading from trct5000 sensor and test threshold works
 */
 
-// !this code is not final need to rewrite to accomodate trct5000
 #define IR_FL A0
 #define IR_FR A5
 #define IR_BL A6
