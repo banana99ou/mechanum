@@ -19,14 +19,14 @@ void accelerate(int speed){
     if(speed<0){ // set dir pin low when speed is smaller than 0
         digitalWrite(motor_FL_dir_Pin, LOW);
         digitalWrite(motor_FR_dir_Pin, LOW);
-        digitalWrite(motor_BL_dir_Pin, LOW);
-        digitalWrite(motor_BR_dir_Pin, LOW);
+        digitalWrite(motor_BL_dir_Pin, HIGH);
+        digitalWrite(motor_BR_dir_Pin, HIGH);
     }
     else if(speed>0){
         digitalWrite(motor_FL_dir_Pin, HIGH);
         digitalWrite(motor_FR_dir_Pin, HIGH);
-        digitalWrite(motor_BL_dir_Pin, HIGH);
-        digitalWrite(motor_BR_dir_Pin, HIGH);
+        digitalWrite(motor_BL_dir_Pin, LOW);
+        digitalWrite(motor_BR_dir_Pin, LOW);
     }
     else{   // set motor speed to 0 when speed is 0
         analogWrite(motor_FL_pwm_Pin, 0);
@@ -46,14 +46,14 @@ void turn(int speed){
     ccw -255 < speed < 255 cw
     */
    if(speed<0){ // turn left when speed is smaller than 0
-        digitalWrite(motor_FL_dir_Pin, LOW);  // left side go backward
-        digitalWrite(motor_FR_dir_Pin, HIGH); // right side go forward
+        digitalWrite(motor_FL_dir_Pin, HIGH);  // left side go backward
+        digitalWrite(motor_FR_dir_Pin, LOW); // right side go forward
         digitalWrite(motor_BL_dir_Pin, LOW);
         digitalWrite(motor_BR_dir_Pin, HIGH);
     }
     else if(speed>0){
-        digitalWrite(motor_FL_dir_Pin, HIGH);
-        digitalWrite(motor_FR_dir_Pin, LOW);
+        digitalWrite(motor_FL_dir_Pin, LOW);
+        digitalWrite(motor_FR_dir_Pin, HIGH);
         digitalWrite(motor_BL_dir_Pin, HIGH);
         digitalWrite(motor_BR_dir_Pin, LOW);
     }
