@@ -1,9 +1,9 @@
-#define TRIG_FF 7
-#define ECHO_FF 6
-#define TRIG_FR 
-#define ECHO_FR 
-#define TRIG_FL 
-#define ECHO_FL 
+#define TRIG_FF 9
+#define ECHO_FF 8
+#define TRIG_FR 21
+#define ECHO_FR 20
+#define TRIG_FL 7
+#define ECHO_FL 6
 #define IR_L A7 
 #define IR_R A6
 
@@ -16,7 +16,8 @@
 // #define motor_BR_dir_Pin 8 
 // #define motor_BR_pwm_Pin 44
 
-int threshold = 400; // threshold of sonar
+int threshold = 200; // threshold of sonar
+int i = 0;
 
 void accelerate(int speed){
     /* 
@@ -26,25 +27,25 @@ void accelerate(int speed){
     if(speed<0){ // set dir pin low when speed is smaller than 0
         digitalWrite(motor_FL_dir_Pin, LOW);
         digitalWrite(motor_FR_dir_Pin, LOW);
-        digitalWrite(motor_BL_dir_Pin, HIGH);
-        digitalWrite(motor_BR_dir_Pin, HIGH);
+        // digitalWrite(motor_BL_dir_Pin, HIGH);
+        // digitalWrite(motor_BR_dir_Pin, HIGH);
     }
     else if(speed>0){
         digitalWrite(motor_FL_dir_Pin, HIGH);
         digitalWrite(motor_FR_dir_Pin, HIGH);
-        digitalWrite(motor_BL_dir_Pin, LOW);
-        digitalWrite(motor_BR_dir_Pin, LOW);
+        // digitalWrite(motor_BL_dir_Pin, LOW);
+        // digitalWrite(motor_BR_dir_Pin, LOW);
     }
     else{   // set motor speed to 0 when speed is 0
         analogWrite(motor_FL_pwm_Pin, 0);
         analogWrite(motor_FR_pwm_Pin, 0);
-        analogWrite(motor_BL_pwm_Pin, 0);
-        analogWrite(motor_BR_pwm_Pin, 0);
+        // analogWrite(motor_BL_pwm_Pin, 0);
+        // analogWrite(motor_BR_pwm_Pin, 0);
     }
     analogWrite(motor_FL_pwm_Pin, abs(speed));
     analogWrite(motor_FR_pwm_Pin, abs(speed));
-    analogWrite(motor_BL_pwm_Pin, abs(speed));
-    analogWrite(motor_BR_pwm_Pin, abs(speed));
+    // analogWrite(motor_BL_pwm_Pin, abs(speed));
+    // analogWrite(motor_BR_pwm_Pin, abs(speed));
 }
 
 void turn(int speed){
@@ -55,25 +56,25 @@ void turn(int speed){
     if(speed<0){ // turn left when speed is smaller than 0
         digitalWrite(motor_FL_dir_Pin, HIGH);  // left side go backward
         digitalWrite(motor_FR_dir_Pin, LOW); // right side go forward
-        digitalWrite(motor_BL_dir_Pin, LOW);
-        digitalWrite(motor_BR_dir_Pin, HIGH);
+        // digitalWrite(motor_BL_dir_Pin, LOW);
+        // digitalWrite(motor_BR_dir_Pin, HIGH);
     }
     else if(speed>0){
         digitalWrite(motor_FL_dir_Pin, LOW);
         digitalWrite(motor_FR_dir_Pin, HIGH);
-        digitalWrite(motor_BL_dir_Pin, HIGH);
-        digitalWrite(motor_BR_dir_Pin, LOW);
+        // digitalWrite(motor_BL_dir_Pin, HIGH);
+        // digitalWrite(motor_BR_dir_Pin, LOW);
     }
     else{   // set motor speed to 0 when speed is 0
         analogWrite(motor_FL_pwm_Pin, 0);
         analogWrite(motor_FR_pwm_Pin, 0);
-        analogWrite(motor_BL_pwm_Pin, 0);
-        analogWrite(motor_BR_pwm_Pin, 0);
+        // analogWrite(motor_BL_pwm_Pin, 0);
+        // analogWrite(motor_BR_pwm_Pin, 0);
     }
     analogWrite(motor_FL_pwm_Pin, abs(speed));
     analogWrite(motor_FR_pwm_Pin, abs(speed));
-    analogWrite(motor_BL_pwm_Pin, abs(speed));
-    analogWrite(motor_BR_pwm_Pin, abs(speed));
+    // analogWrite(motor_BL_pwm_Pin, abs(speed));
+    // analogWrite(motor_BR_pwm_Pin, abs(speed));
 }
 
 void move(int speed, int turn_radius){
@@ -98,14 +99,14 @@ void move(int speed, int turn_radius){
         if(speed<0){ // set dir pin low when speed is smaller than 0
             digitalWrite(motor_FL_dir_Pin, LOW);
             digitalWrite(motor_FR_dir_Pin, LOW);
-            digitalWrite(motor_BL_dir_Pin, HIGH);
-            digitalWrite(motor_BR_dir_Pin, HIGH);
+            // digitalWrite(motor_BL_dir_Pin, HIGH);
+            // digitalWrite(motor_BR_dir_Pin, HIGH);
         }
         else if(speed>0){
             digitalWrite(motor_FL_dir_Pin, HIGH);
             digitalWrite(motor_FR_dir_Pin, HIGH);
-            digitalWrite(motor_BL_dir_Pin, LOW);
-            digitalWrite(motor_BR_dir_Pin, LOW);
+            // digitalWrite(motor_BL_dir_Pin, LOW);
+            // digitalWrite(motor_BR_dir_Pin, LOW);
         }
     }
     else if(abs(turn_radius)<wheel_width){
@@ -113,21 +114,21 @@ void move(int speed, int turn_radius){
         if(speed<0){ // turn left when speed is smaller than 0
             digitalWrite(motor_FL_dir_Pin, HIGH);  // left side go backward
             digitalWrite(motor_FR_dir_Pin, LOW); // right side go forward
-            digitalWrite(motor_BL_dir_Pin, LOW);
-            digitalWrite(motor_BR_dir_Pin, HIGH);
+            // digitalWrite(motor_BL_dir_Pin, LOW);
+            // digitalWrite(motor_BR_dir_Pin, HIGH);
         }
         else if(speed>0){
             digitalWrite(motor_FL_dir_Pin, LOW);
             digitalWrite(motor_FR_dir_Pin, HIGH);
-            digitalWrite(motor_BL_dir_Pin, HIGH);
-            digitalWrite(motor_BR_dir_Pin, LOW);
+            // digitalWrite(motor_BL_dir_Pin, HIGH);
+            // digitalWrite(motor_BR_dir_Pin, LOW);
         }
     }
     else{   // set motor speed to 0 when speed is 0
         analogWrite(motor_FL_pwm_Pin, 0);
         analogWrite(motor_FR_pwm_Pin, 0);
-        analogWrite(motor_BL_pwm_Pin, 0);
-        analogWrite(motor_BR_pwm_Pin, 0);
+        // analogWrite(motor_BL_pwm_Pin, 0);
+        // analogWrite(motor_BR_pwm_Pin, 0);
     }
     // Serial.println(turn_radius);
     if(turn_radius > 0){
@@ -153,17 +154,17 @@ void move(int speed, int turn_radius){
     // Serial.println(leftside_speed);
     analogWrite(motor_FL_pwm_Pin, leftside_speed);
     analogWrite(motor_FR_pwm_Pin, rightside_speed);
-    analogWrite(motor_BL_pwm_Pin, leftside_speed);
-    analogWrite(motor_BR_pwm_Pin, rightside_speed);
+    // analogWrite(motor_BL_pwm_Pin, leftside_speed);
+    // analogWrite(motor_BR_pwm_Pin, rightside_speed);
 }
 
 int Ping(int echo, int trig) {
     long duration;  //variable for the duration of sound wave travel
     int distance;
     digitalWrite(trig, LOW);
-    delayMicroseconds(1);
+    // delayMicroseconds(1);
     digitalWrite(trig, HIGH);
-    delayMicroseconds(10);
+    // delayMicroseconds(10);
     digitalWrite(trig, LOW);
     // Reads the echoPin, returns the sound wave travel time in microseconds
     duration = pulseIn(echo, HIGH);
@@ -177,9 +178,13 @@ void setup() {
     for(i=0; i<9; i++){
         pinMode(i, OUTPUT);
     }
-    pinMode(motor_BR_pwm_Pin, OUTPUT);
+    // pinMode(motor_BR_pwm_Pin, OUTPUT);
     pinMode(TRIG_FF, OUTPUT);
     pinMode(ECHO_FF, INPUT);
+    pinMode(TRIG_FR, OUTPUT);
+    pinMode(ECHO_FR, INPUT);
+    pinMode(TRIG_FL, OUTPUT);
+    pinMode(ECHO_FL, INPUT);
 }
 
 void loop() {
@@ -192,17 +197,24 @@ void loop() {
     sonar_FR = 0.86298*sonar_FR + 4.49465;
     sonar_FL = 0.86298*sonar_FL + 4.49465;
 
+    Serial.print(sonar_FL);
+    Serial.print(", ");
+    Serial.print(sonar_FF);
+    Serial.print(", ");
+    Serial.println(sonar_FR);
+
     if(sonar_FF < threshold){
         accelerate(40);
+        Serial.println("forward");
     }
     else{
         if((sonar_FR < threshold) || (sonar_FL < threshold)){
             if(sonar_FL < sonar_FR){
                 turn(-100);
             }
-            else(
+            else{
                 turn(100);
-            )
+            }
         }
     }
 }
