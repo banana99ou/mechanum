@@ -185,6 +185,12 @@ void loop(){
     Serial.print(", ");
     result1 = 0.86298*result1 + 4.49465;
     speed = result1 - threshold;
+    if(speed>254){
+        speed = 254;
+    }
+    if(speed<-254){
+        speed = -254;
+    }
     accelerate(speed);
     Serial.print(result1);
     Serial.print(", ");
