@@ -189,7 +189,7 @@ void move(int speed, int turn_radius){
 }
 
 int Ping(int echo, int trig) {
-    long duration;  //variable for the duration of sound wave travel
+    long duration;
     int distance;
     digitalWrite(trig, LOW);
     delayMicroseconds(1);
