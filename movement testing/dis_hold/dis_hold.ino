@@ -7,19 +7,45 @@
 #define motor_BR_dir_Pin 8 
 #define motor_BR_pwm_Pin 44
 
-#define TRIG_FF 9
-#define ECHO_FF 10
+#define TRIG_FF 10
+#define ECHO_FF 11
 
 float result1;
 int speed;
-int threshold = 40;
+int threshold = 20;
 int i = 0;
+
+void setup(){
+    Serial.begin(9600);
+    for(i=0; i<9; i++){
+        pinMode(i, OUTPUT);
+    }
+    pinMode(motor_BR_pwm_Pin, OUTPUT);
+    pinMode(TRIG_FF, OUTPUT);
+    pinMode(ECHO_FF, INPUT);
+}
+
+void loop(){
+    result1 = Ping(ECHO_FF, TRIG_FF);
+    Serial.print(result1);
+    Serial.print(", corrected: ");
+    result1 = 0.86298*result1 + 4.49465;
+    speed = result1 - threshold;
+    accelerate(speed*0.5);
+    Serial.print(result1);
+    Serial.print(", speed: ");
+    Serial.println(speed*0.5);
+}
 
 void accelerate(int speed){
     /* 
     accelerate to int speed
     -255 < speed < 255
     */
+    
+    Serial.print("speed: ");
+    Serial.print(speed);
+
     if(speed<0){ // set dir pin low when speed is smaller than 0
         digitalWrite(motor_FL_dir_Pin, LOW);
         digitalWrite(motor_FR_dir_Pin, LOW);
@@ -38,8 +64,10 @@ void accelerate(int speed){
         analogWrite(motor_BL_pwm_Pin, 0);
         analogWrite(motor_BR_pwm_Pin, 0);
     }
+    Serial.print("abs(speed): ");
+    Serial.println(abs(speed));
     analogWrite(motor_FL_pwm_Pin, abs(speed));
-    analogWrite(motor_FR_pwm_Pin, abs(speed));
+    analogWrite(motor_FR_pwm_Pin, abs(speed)); 
     analogWrite(motor_BL_pwm_Pin, abs(speed));
     analogWrite(motor_BR_pwm_Pin, abs(speed));
 }
@@ -167,26 +195,4 @@ int Ping(int echo, int trig) {
     // Calculating the distance
     distance = duration * 0.34 / 2;  // Speed of sound wave divided by 2 (go and back)
     return (distance);               //mm
-}
-
-void setup(){
-    Serial.begin(9600);
-    for(i=0; i<9; i++){
-        pinMode(i, OUTPUT);
-    }
-    pinMode(motor_BR_pwm_Pin, OUTPUT);
-    pinMode(TRIG_FF, OUTPUT);
-    pinMode(ECHO_FF, INPUT);
-}
-
-void loop(){
-    result1 = Ping(ECHO_FF, TRIG_FF);
-    Serial.print(result1);
-    Serial.print(", ");
-    result1 = 0.86298*result1 + 4.49465;
-    speed = result1 - threshold;
-    accelerate(speed);
-    Serial.print(result1);
-    Serial.print(", ");
-    Serial.println(speed);
 }
