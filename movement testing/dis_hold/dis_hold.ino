@@ -1,11 +1,7 @@
-#define motor_FL_dir_Pin 4
+#define motor_FL_dir_Pin 2
 #define motor_FL_pwm_Pin 3
-#define motor_FR_dir_Pin 2
+#define motor_FR_dir_Pin 4
 #define motor_FR_pwm_Pin 5
-#define motor_BL_dir_Pin 6
-#define motor_BL_pwm_Pin 7
-#define motor_BR_dir_Pin 8 
-#define motor_BR_pwm_Pin 44
 
 #define TRIG_FF 10
 #define ECHO_FF 11
@@ -42,34 +38,23 @@ void accelerate(int speed){
     accelerate to int speed
     -255 < speed < 255
     */
-    
-    Serial.print("speed: ");
-    Serial.print(speed);
+
+    speed = constrain(speed, -254, 254);
 
     if(speed<0){ // set dir pin low when speed is smaller than 0
         digitalWrite(motor_FL_dir_Pin, LOW);
         digitalWrite(motor_FR_dir_Pin, LOW);
-        digitalWrite(motor_BL_dir_Pin, HIGH);
-        digitalWrite(motor_BR_dir_Pin, HIGH);
     }
     else if(speed>0){
         digitalWrite(motor_FL_dir_Pin, HIGH);
         digitalWrite(motor_FR_dir_Pin, HIGH);
-        digitalWrite(motor_BL_dir_Pin, LOW);
-        digitalWrite(motor_BR_dir_Pin, LOW);
     }
     else{   // set motor speed to 0 when speed is 0
         analogWrite(motor_FL_pwm_Pin, 0);
         analogWrite(motor_FR_pwm_Pin, 0);
-        analogWrite(motor_BL_pwm_Pin, 0);
-        analogWrite(motor_BR_pwm_Pin, 0);
     }
-    Serial.print("abs(speed): ");
-    Serial.println(abs(speed));
     analogWrite(motor_FL_pwm_Pin, abs(speed));
-    analogWrite(motor_FR_pwm_Pin, abs(speed)); 
-    analogWrite(motor_BL_pwm_Pin, abs(speed));
-    analogWrite(motor_BR_pwm_Pin, abs(speed));
+    analogWrite(motor_FR_pwm_Pin, abs(speed));
 }
 
 void turn(int speed){
@@ -77,28 +62,23 @@ void turn(int speed){
     rotate in int speed
     ccw -255 < speed < 255 cw
     */
+
+    speed = constrain(speed, -254, 254);
+
     if(speed<0){ // turn left when speed is smaller than 0
         digitalWrite(motor_FL_dir_Pin, HIGH);  // left side go backward
         digitalWrite(motor_FR_dir_Pin, LOW); // right side go forward
-        digitalWrite(motor_BL_dir_Pin, LOW);
-        digitalWrite(motor_BR_dir_Pin, HIGH);
     }
     else if(speed>0){
         digitalWrite(motor_FL_dir_Pin, LOW);
         digitalWrite(motor_FR_dir_Pin, HIGH);
-        digitalWrite(motor_BL_dir_Pin, HIGH);
-        digitalWrite(motor_BR_dir_Pin, LOW);
     }
     else{   // set motor speed to 0 when speed is 0
         analogWrite(motor_FL_pwm_Pin, 0);
         analogWrite(motor_FR_pwm_Pin, 0);
-        analogWrite(motor_BL_pwm_Pin, 0);
-        analogWrite(motor_BR_pwm_Pin, 0);
     }
     analogWrite(motor_FL_pwm_Pin, abs(speed));
     analogWrite(motor_FR_pwm_Pin, abs(speed));
-    analogWrite(motor_BL_pwm_Pin, abs(speed));
-    analogWrite(motor_BR_pwm_Pin, abs(speed));
 }
 
 void move(int speed, int turn_radius){
@@ -115,6 +95,9 @@ void move(int speed, int turn_radius){
 
     if turn_radius -> infinity then go forward
     */
+
+    speed = constrain(speed, -254, 254);
+
     int wheel_width = 392;
     int rightside_speed = 0;
     int leftside_speed = 0;
@@ -123,14 +106,10 @@ void move(int speed, int turn_radius){
         if(speed<0){ // set dir pin low when speed is smaller than 0
             digitalWrite(motor_FL_dir_Pin, LOW);
             digitalWrite(motor_FR_dir_Pin, LOW);
-            digitalWrite(motor_BL_dir_Pin, HIGH);
-            digitalWrite(motor_BR_dir_Pin, HIGH);
         }
         else if(speed>0){
             digitalWrite(motor_FL_dir_Pin, HIGH);
             digitalWrite(motor_FR_dir_Pin, HIGH);
-            digitalWrite(motor_BL_dir_Pin, LOW);
-            digitalWrite(motor_BR_dir_Pin, LOW);
         }
     }
     else if(abs(turn_radius)<wheel_width){
@@ -138,21 +117,15 @@ void move(int speed, int turn_radius){
         if(speed<0){ // turn left when speed is smaller than 0
             digitalWrite(motor_FL_dir_Pin, HIGH);  // left side go backward
             digitalWrite(motor_FR_dir_Pin, LOW); // right side go forward
-            digitalWrite(motor_BL_dir_Pin, LOW);
-            digitalWrite(motor_BR_dir_Pin, HIGH);
         }
         else if(speed>0){
             digitalWrite(motor_FL_dir_Pin, LOW);
             digitalWrite(motor_FR_dir_Pin, HIGH);
-            digitalWrite(motor_BL_dir_Pin, HIGH);
-            digitalWrite(motor_BR_dir_Pin, LOW);
         }
     }
     else{   // set motor speed to 0 when speed is 0
         analogWrite(motor_FL_pwm_Pin, 0);
         analogWrite(motor_FR_pwm_Pin, 0);
-        analogWrite(motor_BL_pwm_Pin, 0);
-        analogWrite(motor_BR_pwm_Pin, 0);
     }
     // Serial.println(turn_radius);
     if(turn_radius > 0){
@@ -178,8 +151,6 @@ void move(int speed, int turn_radius){
     // Serial.println(leftside_speed);
     analogWrite(motor_FL_pwm_Pin, leftside_speed);
     analogWrite(motor_FR_pwm_Pin, rightside_speed);
-    analogWrite(motor_BL_pwm_Pin, leftside_speed);
-    analogWrite(motor_BR_pwm_Pin, rightside_speed);
 }
 
 int Ping(int echo, int trig) {
