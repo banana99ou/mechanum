@@ -68,12 +68,12 @@ void turn(int speed){
     speed = constrain(speed, -254, 254);
 
     if(speed<0){ // turn left when speed is smaller than 0
-        digitalWrite(motor_FL_dir_Pin, HIGH);  // left side go backward
-        digitalWrite(motor_FR_dir_Pin, LOW); // right side go forward
+        digitalWrite(motor_FL_dir_Pin, LOW);  // left side go backward
+        digitalWrite(motor_FR_dir_Pin, HIGH); // right side go forward
     }
     else if(speed>0){
-        digitalWrite(motor_FL_dir_Pin, LOW);
-        digitalWrite(motor_FR_dir_Pin, HIGH);
+        digitalWrite(motor_FL_dir_Pin, HIGH);
+        digitalWrite(motor_FR_dir_Pin, LOW);
     }
     else{   // set motor speed to 0 when speed is 0
         analogWrite(motor_FL_pwm_Pin, 0);
