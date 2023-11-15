@@ -8,15 +8,14 @@
 
 float result1;
 int speed;
-int threshold = 20;
+int threshold = 1000;// 90 12 140 18
 int i = 0;
 
 void setup(){
     Serial.begin(9600);
-    for(i=0; i<9; i++){
+    for(i=2; i<6; i++){
         pinMode(i, OUTPUT);
     }
-    pinMode(motor_BR_pwm_Pin, OUTPUT);
     pinMode(TRIG_FF, OUTPUT);
     pinMode(ECHO_FF, INPUT);
 }
@@ -162,7 +161,7 @@ int Ping(int echo, int trig) {
     delayMicroseconds(10);
     digitalWrite(trig, LOW);
     // Reads the echoPin, returns the sound wave travel time in microseconds
-    duration = pulseIn(echo, HIGH);
+    duration = pulseIn(echo, HIGH, 2000);
     // Calculating the distance
     distance = duration * 0.34 / 2;  // Speed of sound wave divided by 2 (go and back)
     return (distance);               //mm

@@ -8,23 +8,21 @@
 
 float result1;
 int speed;
-int threshold = 80;
+int threshold = 600;// 90 12 140 18
 int i = 0;
 
 void setup(){
     Serial.begin(9600);
-    for(i=0; i<9; i++){
+    for(i=2; i<6; i++){
         pinMode(i, OUTPUT);
     }
-    pinMode(motor_BR_pwm_Pin, OUTPUT);
     pinMode(TRIG_FF, OUTPUT);
     pinMode(ECHO_FF, INPUT);
 }
 
 void loop(){
     result1 = Ping(ECHO_FF, TRIG_FF);
-    // Serial.print("corrected: ");
-    // Serial.print(result1);
+    Serial.print(result1);
     if(result1 < threshold){
         Serial.println("accel");
         accelerate(70);
@@ -156,7 +154,7 @@ void move(int speed, int turn_radius){
 }
 
 int Ping(int echo, int trig) {
-    long duration;
+    long duration;  //variable for the duration of sound wave travel
     int distance;
     digitalWrite(trig, LOW);
     delayMicroseconds(1);
