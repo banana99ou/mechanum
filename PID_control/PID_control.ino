@@ -1,7 +1,7 @@
-#define dir1 4
-#define pwm1 5
-#define ENCB_ch1 14
-#define ENCA_ch1 2
+#define dir1 2
+#define pwm1 3
+#define ENCB_ch1 18
+#define ENCA_ch1 19
  
 // pid stuff for motor
 int pos_ch1 = 0;  // left motor position
@@ -11,35 +11,57 @@ float preve_ch1 = 0;  // previous error
 float eintegral_ch1 = 0; //error integral
 int ppr = 459;  // pulse per revolution
 
-void setup(){
-    pinMode(ENCA_ch1, INPUT);
-    pinMode(ENCB_ch1, INPUT);
-    pinMode(pwm1, OUTPUT);
-    pinMode(dir1, OUTPUT);
-    pinMode(pwm2, OUTPUT);
-    pinMode(dir2, OUTPUT);
+bool stringComplete;
+String inputString;
+int i = 0;
 
-    attachInterrupt(digitalPinToInterrupt(ENCA_ch1), readEncoderch1, RISING);
+void setup(){
+  Serial.begin(9600);
+
+  pinMode(ENCA_ch1, INPUT);
+  pinMode(ENCB_ch1, INPUT);
+  pinMode(pwm1, OUTPUT);
+  pinMode(dir1, OUTPUT);
+
+  attachInterrupt(digitalPinToInterrupt(ENCA_ch1), readEncoderch1, RISING);
 }
 
 void loop() {
+  serialEvent();
+  if(stringComplete) {
+    // if(inputString.startsWith("accel")) {
+    //   Serial.print("Ack: accel ");
+    //   int amount = inputString.substring(6).toInt();
+    //   Serial.println(amount);
+    //   accelerate(amount);
+    //   delay(500);
+    //   accelerate(0);
+    // }
+    target_ch1 = inputString.toInt();
+
+    Serial.print("target: ");
+    Serial.println(target_ch1);
+    
+    inputString = "";
+    stringComplete = false;
+  }
   // time flow
   long currT = micros();
   float deltaT = ((float)(currT - prevT)) / 1.0e6;
   prevT = currT;
 
   preve_ch1 =  motor_pid(target_ch1, pos_ch1, deltaT, dir1, pwm1, preve_ch1);
+
+  Serial.println(pos_ch1);
 }
 
 void readEncoderch1() {
-  //Serial.print("encoderch1 read");
   int b = digitalRead(ENCB_ch1);
   if (b > 0) {
     pos_ch1++;
   } else {
     pos_ch1--;
   }
-  //Serial.println(pos_ch1);
 }
 
 void setMotor(int dirPin, int dir, int pwmPin, int pwmVal) {
@@ -90,11 +112,21 @@ int motor_pid(int target, int pos, float deltaT, int dirPIN, int pwmPIN, int pre
   if (pwr > 255) {
     pwr = 255;
   }
-  int dir = 1;
+  int dir = -1;
   if (u < 0) {
-    dir = -1;
+    dir = 1;
   }
   setMotor(dirPIN, dir, pwmPIN, pwr);
   preve = e;
   return preve;
+}
+
+void serialEvent() {
+    while(Serial.available()){
+        char inChar = (char)Serial.read();
+        inputString += inChar;
+        if(inChar == '\n') {
+        stringComplete = true;
+        }
+    }
 }
