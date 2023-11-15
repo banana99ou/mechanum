@@ -162,7 +162,7 @@ int Ping(int echo, int trig) {
     delayMicroseconds(10);
     digitalWrite(trig, LOW);
     // Reads the echoPin, returns the sound wave travel time in microseconds
-    duration = pulseIn(echo, HIGH, 2000); // timeout of 2000 microseconds approx 0.68m
+    duration = pulseIn(echo, HIGH, 50000); // timeout of 50000 microseconds approx 8.5m
     distance = duration * 0.34 / 2;  // Speed of sound wave divided by 2 (go and back)
     return (distance);               //mm
 }
