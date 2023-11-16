@@ -3,12 +3,16 @@
 #define motor_FR_dir_Pin 4
 #define motor_FR_pwm_Pin 5
 
-#define TRIG_FF 10
-#define ECHO_FF 11
+#define TRIG_FF 11
+#define ECHO_FF 10
+
+#define TRIG_2 12
+#define ECHO_2 13
 
 float result1;
+float result2;
 int speed;
-int threshold = 600;// 90 12 140 18
+int threshold = 100;// 90 12 140 18
 int i = 0;
 
 void setup(){
@@ -22,13 +26,14 @@ void setup(){
 
 void loop(){
     result1 = Ping(ECHO_FF, TRIG_FF);
+    result2 = Ping(ECHO_2, TRIG_2);
     Serial.print(result1);
-    if(result1 < threshold){
-        Serial.println("accel");
+    if((result1 < threshold)&&(result2 < threshold)){
+        Serial.println(" accel");
         accelerate(70);
     }
     else if(result1 > threshold){
-        Serial.println("turn");
+        Serial.println(" turn");
         turn(70);
     }
 }
