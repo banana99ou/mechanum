@@ -8,7 +8,7 @@ test reading from 2Y0A21 sensor and test threshold works
 #define IR_BR A7
 
 // Threshold of IR sensors
-int IR_threshold_FL = 0;
+int IR_threshold_FL = 1023;
 int IR_threshold_FR = 0;
 int IR_threshold_BL = 0;
 int IR_threshold_BR = 0;
@@ -25,8 +25,14 @@ void setup(){
 
     for(i=0; i<20; i++){
         // use lowest value in current situation
-        if(IR_threshold_FL < analogRead(IR_FL)){
-            IR_threshold_FL = analogRead(IR_FL) + 100;
+        int IR_result[4];
+      IR_result[0] = analogRead(IR_FL);
+      // IR_result[1] = analogRead(IR_FR);
+      // IR_result[2] = analogRead(IR_BL);
+      // IR_result[3] = analogRead(IR_BR);
+      
+        if(IR_threshold_FL > IR_result[0]){
+            IR_threshold_FL = IR_result[0] + 0;
         }
         // if(IR_threshold_FR < analogRead(IR_FR)){
         //     IR_threshold_FR = analogRead(IR_FR) + 100;
@@ -47,6 +53,8 @@ void setup(){
         // Serial.print(IR_threshold_BL);
         // Serial.print(" ");
         // Serial.println(IR_threshold_BR);
+
+        delay(100);
     }
 }
 
@@ -57,14 +65,14 @@ void loop(){
     // IR_result[2] = analogRead(IR_BL);
     // IR_result[3] = analogRead(IR_BR);
 
-    Serial.println(IR_result[0]);
-//    Serial.println("Is result over threshold?");
-//    if(IR_result[0]>IR_threshold_FL){
-//        Serial.println("FL: yes");
-//    }
-//    else{
-//        Serial.println("FL: no");
-//    }
+    Serial.print(IR_result[0]);
+    // Serial.println("Is result over threshold?");
+    if(IR_result[0] < IR_threshold_FL){
+        Serial.println(" FL: yes");
+    }
+    else{
+        Serial.println(" FL: no");
+    }
     // if(IR_result[1]>IR_threshold_FR){
     //     Serial.println("FR: yes");
     // }
