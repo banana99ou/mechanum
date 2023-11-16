@@ -7,5 +7,5 @@
 ## Fall_testing.ino
 - [x] floor detection with IR
 - [ ] backing distance/timing adjustment
-= [ ] ?advanced distance based movement func
+= [ ] ?advanced distance based movement func?
 ------------
