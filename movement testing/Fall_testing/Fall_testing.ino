@@ -22,7 +22,7 @@ int IR_threshold_BR = 1023;
 int IR_result[4];
 int IR_threshold[4];
 
-int i = 0;
+int i = 0; 
 
 void setup(){
     Serial.begin(9600);
