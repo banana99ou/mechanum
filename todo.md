@@ -1,6 +1,11 @@
 # milestone
 ## move.ino-turn()
-- [ ] add turn radius
+- [x] add turn radius
 - [ ] wall/target detection with sonar
-- [ ] floor detection with IR
+------------
+
+## Fall_testing.ino
+- [x] floor detection with IR
+- [ ] backing distance/timing adjustment
+= [ ] ?advanced distance based movement func
 ------------
