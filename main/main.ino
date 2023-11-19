@@ -1,51 +1,185 @@
-#define TRIG_FF 9
-#define ECHO_FF 8
-#define TRIG_FR 21
-#define ECHO_FR 20
-#define TRIG_FL 7
-#define ECHO_FL 6
-#define IR_L A7 
-#define IR_R A6
-
-#define motor_FL_dir_Pin 4
+#define motor_FL_dir_Pin 2
 #define motor_FL_pwm_Pin 3
-#define motor_FR_dir_Pin 2
+#define motor_FR_dir_Pin 4
 #define motor_FR_pwm_Pin 5
-// #define motor_BL_dir_Pin 6
-// #define motor_BL_pwm_Pin 7
-// #define motor_BR_dir_Pin 8 
-// #define motor_BR_pwm_Pin 44
 
-int threshold = 200; // threshold of sonar
-int i = 0;
+#define TRIG_FF 11
+#define ECHO_FF 10
+
+#define TRIG_2 12
+#define ECHO_2 13
+
+float result1;
+float result2;
+int speed;
+int threshold = 500;// 90 12 140 18
+
+#define IR_FL A0
+#define IR_FR A1
+#define IR_BL A6
+#define IR_BR A7
+
+// Threshold of IR sensors
+int IR_threshold_FL = 1023;
+int IR_threshold_FR = 1023;
+int IR_threshold_BL = 1023;
+int IR_threshold_BR = 1023;
+
+int IR_result[4];
+int IR_threshold[4] = {1023, 1023, 1023, 1023};
+
+int i = 0; 
+
+void setup(){
+    Serial.begin(9600);
+
+    for(i=2; i<6; i++){
+        pinMode(i, OUTPUT);
+    }
+    pinMode(TRIG_FF, OUTPUT);
+    pinMode(ECHO_FF, INPUT);
+    pinMode(IR_FL, INPUT);
+    pinMode(IR_FR, INPUT);
+    // pinMode(IR_BL, INPUT);
+    // pinMode(IR_BR, INPUT);
+
+    // calibrate IR sensor
+    for(i=0; i<20; i++){
+        // use lowest value in current situation
+        IR_result[0] = analogRead(IR_FL);
+        IR_result[1] = analogRead(IR_FR);
+        // IR_result[2] = analogRead(IR_BL);
+        // IR_result[3] = analogRead(IR_BR);
+      
+        if(IR_threshold[0] > IR_result[0]){
+            IR_threshold[0] = IR_result[0] - 80;
+        }
+        if(IR_threshold[1] > IR_result[1]){
+            IR_threshold[1] = IR_result[1] - 80;
+        }
+        // if(IR_threshold[2] > IR_result[2]){
+        //     IR_threshold[2] = IR_result[2] - 80;
+        // }
+        // if(IR_threshold[3] > IR_result[3]){
+        //     IR_threshold[3] = IR_result[3] - 80;
+        // }
+
+        // print IR threshold
+        Serial.print("IR Calibrated: ");
+        Serial.print(IR_threshold[0]);
+        Serial.print(IR_result[0]);
+        Serial.print(", ");
+        Serial.println(IR_threshold[1]);
+        // Serial.print(", ");
+        // Serial.print(IR_threshold[2]);
+        // Serial.print(", ");
+        // Serial.println(IR_threshold[3]);
+
+        delay(50);
+    }
+}
+
+void loop(){
+    // look for target with sonar
+    result1 = Ping(ECHO_FF, TRIG_FF);
+    result2 = Ping(ECHO_2, TRIG_2);
+    Serial.print(result1);
+    // Serial.print(result2);
+
+    if(result1 != 0){
+        if(result1 < threshold){
+            Serial.println(" accel");
+            accelerate(70);
+        }
+        else if(result1 > threshold){
+            Serial.println(" turn");
+            turn(70);
+        }
+    }
+
+    // after course set, look for obstacle
+    IR_result[0] = analogRead(IR_FL);
+    IR_result[1] = analogRead(IR_FR);
+    // IR_result[2] = analogRead(IR_BL);
+    // IR_result[3] = analogRead(IR_BR);
+
+    Serial.print(", IR_result ");
+    Serial.println(IR_result[0]);
+    
+    // if both front IR is triggered
+    if((IR_result[0] < IR_threshold[0]) && (IR_result[1] < IR_threshold[1])){
+        Serial.println(" go back a bit and turn 180 degrees");
+        accelerate(-70);
+        delay(500);
+        turn(-100);
+        delay(500);
+    }
+
+    // if FL IR is triggered
+    else if(IR_result[0] < IR_threshold[0]){
+        Serial.println(" go back a bit and turn ccw -80 ~ -180");
+        accelerate(-70);
+        delay(500);
+        turn(-100);
+        delay(500);
+    }
+
+    // if FR IR is triggered
+    else if(IR_result[1] < IR_threshold[1]){
+        Serial.println(" go back a bit and turn cw 80 ~ 180");
+        accelerate(-70);
+        delay(500);
+        turn(100);
+        delay(500);
+    }
+
+    // else{
+    //   accelerate(0);
+    // }
+
+    
+    // if(IR_result[1]>IR_threshold_FR){
+    //     Serial.println("FR: yes");
+    // }
+    // else{
+    //     Serial.println("FR: no");
+    // }
+    // if(IR_result[2]>IR_threshold_BL){
+    //     Serial.println("BL: yes");
+    // }
+    // else{
+    //     Serial.println("BL: no");
+    // }
+    // if(IR_result[3]>IR_threshold_BR){
+    //     Serial.println("BR: yes");
+    // }
+    // else{
+    //     Serial.println("BR: no");
+    // }
+}
 
 void accelerate(int speed){
     /* 
     accelerate to int speed
     -255 < speed < 255
     */
+
+    speed = constrain(speed, -254, 254);
+
     if(speed<0){ // set dir pin low when speed is smaller than 0
         digitalWrite(motor_FL_dir_Pin, LOW);
         digitalWrite(motor_FR_dir_Pin, LOW);
-        // digitalWrite(motor_BL_dir_Pin, HIGH);
-        // digitalWrite(motor_BR_dir_Pin, HIGH);
     }
     else if(speed>0){
         digitalWrite(motor_FL_dir_Pin, HIGH);
         digitalWrite(motor_FR_dir_Pin, HIGH);
-        // digitalWrite(motor_BL_dir_Pin, LOW);
-        // digitalWrite(motor_BR_dir_Pin, LOW);
     }
     else{   // set motor speed to 0 when speed is 0
         analogWrite(motor_FL_pwm_Pin, 0);
         analogWrite(motor_FR_pwm_Pin, 0);
-        // analogWrite(motor_BL_pwm_Pin, 0);
-        // analogWrite(motor_BR_pwm_Pin, 0);
     }
     analogWrite(motor_FL_pwm_Pin, abs(speed));
     analogWrite(motor_FR_pwm_Pin, abs(speed));
-    // analogWrite(motor_BL_pwm_Pin, abs(speed));
-    // analogWrite(motor_BR_pwm_Pin, abs(speed));
 }
 
 void turn(int speed){
@@ -53,28 +187,23 @@ void turn(int speed){
     rotate in int speed
     ccw -255 < speed < 255 cw
     */
+
+    speed = constrain(speed, -254, 254);
+
     if(speed<0){ // turn left when speed is smaller than 0
-        digitalWrite(motor_FL_dir_Pin, HIGH);  // left side go backward
-        digitalWrite(motor_FR_dir_Pin, LOW); // right side go forward
-        // digitalWrite(motor_BL_dir_Pin, LOW);
-        // digitalWrite(motor_BR_dir_Pin, HIGH);
+        digitalWrite(motor_FL_dir_Pin, LOW);  // left side go backward
+        digitalWrite(motor_FR_dir_Pin, HIGH); // right side go forward
     }
     else if(speed>0){
-        digitalWrite(motor_FL_dir_Pin, LOW);
-        digitalWrite(motor_FR_dir_Pin, HIGH);
-        // digitalWrite(motor_BL_dir_Pin, HIGH);
-        // digitalWrite(motor_BR_dir_Pin, LOW);
+        digitalWrite(motor_FL_dir_Pin, HIGH);
+        digitalWrite(motor_FR_dir_Pin, LOW);
     }
     else{   // set motor speed to 0 when speed is 0
         analogWrite(motor_FL_pwm_Pin, 0);
         analogWrite(motor_FR_pwm_Pin, 0);
-        // analogWrite(motor_BL_pwm_Pin, 0);
-        // analogWrite(motor_BR_pwm_Pin, 0);
     }
     analogWrite(motor_FL_pwm_Pin, abs(speed));
     analogWrite(motor_FR_pwm_Pin, abs(speed));
-    // analogWrite(motor_BL_pwm_Pin, abs(speed));
-    // analogWrite(motor_BR_pwm_Pin, abs(speed));
 }
 
 void move(int speed, int turn_radius){
@@ -91,6 +220,9 @@ void move(int speed, int turn_radius){
 
     if turn_radius -> infinity then go forward
     */
+
+    speed = constrain(speed, -254, 254);
+
     int wheel_width = 392;
     int rightside_speed = 0;
     int leftside_speed = 0;
@@ -99,14 +231,10 @@ void move(int speed, int turn_radius){
         if(speed<0){ // set dir pin low when speed is smaller than 0
             digitalWrite(motor_FL_dir_Pin, LOW);
             digitalWrite(motor_FR_dir_Pin, LOW);
-            // digitalWrite(motor_BL_dir_Pin, HIGH);
-            // digitalWrite(motor_BR_dir_Pin, HIGH);
         }
         else if(speed>0){
             digitalWrite(motor_FL_dir_Pin, HIGH);
             digitalWrite(motor_FR_dir_Pin, HIGH);
-            // digitalWrite(motor_BL_dir_Pin, LOW);
-            // digitalWrite(motor_BR_dir_Pin, LOW);
         }
     }
     else if(abs(turn_radius)<wheel_width){
@@ -114,21 +242,15 @@ void move(int speed, int turn_radius){
         if(speed<0){ // turn left when speed is smaller than 0
             digitalWrite(motor_FL_dir_Pin, HIGH);  // left side go backward
             digitalWrite(motor_FR_dir_Pin, LOW); // right side go forward
-            // digitalWrite(motor_BL_dir_Pin, LOW);
-            // digitalWrite(motor_BR_dir_Pin, HIGH);
         }
         else if(speed>0){
             digitalWrite(motor_FL_dir_Pin, LOW);
             digitalWrite(motor_FR_dir_Pin, HIGH);
-            // digitalWrite(motor_BL_dir_Pin, HIGH);
-            // digitalWrite(motor_BR_dir_Pin, LOW);
         }
     }
     else{   // set motor speed to 0 when speed is 0
         analogWrite(motor_FL_pwm_Pin, 0);
         analogWrite(motor_FR_pwm_Pin, 0);
-        // analogWrite(motor_BL_pwm_Pin, 0);
-        // analogWrite(motor_BR_pwm_Pin, 0);
     }
     // Serial.println(turn_radius);
     if(turn_radius > 0){
@@ -154,67 +276,18 @@ void move(int speed, int turn_radius){
     // Serial.println(leftside_speed);
     analogWrite(motor_FL_pwm_Pin, leftside_speed);
     analogWrite(motor_FR_pwm_Pin, rightside_speed);
-    // analogWrite(motor_BL_pwm_Pin, leftside_speed);
-    // analogWrite(motor_BR_pwm_Pin, rightside_speed);
 }
 
 int Ping(int echo, int trig) {
     long duration;  //variable for the duration of sound wave travel
     int distance;
     digitalWrite(trig, LOW);
-    // delayMicroseconds(1);
+    delayMicroseconds(1);
     digitalWrite(trig, HIGH);
-    // delayMicroseconds(10);
+    delayMicroseconds(10);
     digitalWrite(trig, LOW);
     // Reads the echoPin, returns the sound wave travel time in microseconds
-    duration = pulseIn(echo, HIGH);
-    // Calculating the distance
+    duration = pulseIn(echo, HIGH, 50000); // timeout of 50000 microseconds approx 8.5m
     distance = duration * 0.34 / 2;  // Speed of sound wave divided by 2 (go and back)
     return (distance);               //mm
-}
-
-void setup() {
-    Serial.begin(9600);
-    for(i=0; i<9; i++){
-        pinMode(i, OUTPUT);
-    }
-    // pinMode(motor_BR_pwm_Pin, OUTPUT);
-    pinMode(TRIG_FF, OUTPUT);
-    pinMode(ECHO_FF, INPUT);
-    pinMode(TRIG_FR, OUTPUT);
-    pinMode(ECHO_FR, INPUT);
-    pinMode(TRIG_FL, OUTPUT);
-    pinMode(ECHO_FL, INPUT);
-}
-
-void loop() {
-    float sonar_FF, sonar_FR, sonar_FL;
-    sonar_FF = Ping(ECHO_FF, TRIG_FF);
-    sonar_FR = Ping(ECHO_FR, TRIG_FR);
-    sonar_FL = Ping(ECHO_FL, TRIG_FL);
-
-    sonar_FF = 0.86298*sonar_FF + 4.49465; // convert to real distance value
-    sonar_FR = 0.86298*sonar_FR + 4.49465;
-    sonar_FL = 0.86298*sonar_FL + 4.49465;
-
-    Serial.print(sonar_FL);
-    Serial.print(", ");
-    Serial.print(sonar_FF);
-    Serial.print(", ");
-    Serial.println(sonar_FR);
-
-    if(sonar_FF < threshold){
-        accelerate(40);
-        Serial.println("forward");
-    }
-    else{
-        if((sonar_FR < threshold) || (sonar_FL < threshold)){
-            if(sonar_FL < sonar_FR){
-                turn(-100);
-            }
-            else{
-                turn(100);
-            }
-        }
-    }
 }
