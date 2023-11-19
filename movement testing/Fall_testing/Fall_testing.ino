@@ -9,7 +9,7 @@ test reading from 2Y0A21 sensor and test threshold works
 #define motor_FR_pwm_Pin 5
 
 #define IR_FL A0
-#define IR_FR A5
+#define IR_FR A1
 #define IR_BL A6
 #define IR_BR A7
 
@@ -20,7 +20,7 @@ int IR_threshold_BL = 1023;
 int IR_threshold_BR = 1023;
 
 int IR_result[4];
-int IR_threshold[4];
+int IR_threshold[4] = {1023, 1023, 1023, 1023};
 
 int i = 0; 
 
@@ -28,23 +28,23 @@ void setup(){
     Serial.begin(9600);
   
     pinMode(IR_FL, INPUT);
-    // pinMode(IR_FR, INPUT);
+    pinMode(IR_FR, INPUT);
     // pinMode(IR_BL, INPUT);
     // pinMode(IR_BR, INPUT);
 
     for(i=0; i<20; i++){
         // use lowest value in current situation
         IR_result[0] = analogRead(IR_FL);
-        // IR_result[1] = analogRead(IR_FR);
+        IR_result[1] = analogRead(IR_FR);
         // IR_result[2] = analogRead(IR_BL);
         // IR_result[3] = analogRead(IR_BR);
       
         if(IR_threshold[0] > IR_result[0]){
             IR_threshold[0] = IR_result[0] - 80;
         }
-        // if(IR_threshold[1] > IR_result[1]){
-        //     IR_threshold[1] = IR_result[1] - 80;
-        // }
+        if(IR_threshold[1] > IR_result[1]){
+            IR_threshold[1] = IR_result[1] - 80;
+        }
         // if(IR_threshold[2] > IR_result[2]){
         //     IR_threshold[2] = IR_result[2] - 80;
         // }
@@ -54,25 +54,28 @@ void setup(){
 
         // print IR threshold
         Serial.print("IR Calibrated: ");
-        Serial.println(IR_threshold[0]);
-        // Serial.print(", ");
-        // Serial.print(IR_threshold[1]);
+        Serial.print(IR_threshold[0]);
+        Serial.print(IR_result[0]);
+        Serial.print(", ");
+        Serial.println(IR_threshold[1]);
         // Serial.print(", ");
         // Serial.print(IR_threshold[2]);
         // Serial.print(", ");
         // Serial.println(IR_threshold[3]);
 
-        delay(50);
+        delay(100);
     }
 }
 
 void loop(){
     IR_result[0] = analogRead(IR_FL);
-    // IR_result[1] = analogRead(IR_FR);
+    IR_result[1] = analogRead(IR_FR);
     // IR_result[2] = analogRead(IR_BL);
     // IR_result[3] = analogRead(IR_BR);
-
-    Serial.print(IR_result[0]);
+    
+    Serial.print(IR_threshold[1]);
+    Serial.print(", ");
+    Serial.println(IR_result[1]);
     
     // if both front IR is triggered
     if((IR_result[0] < IR_threshold[0]) && (IR_result[1] < IR_threshold[1])){
@@ -84,7 +87,7 @@ void loop(){
     }
 
     // if FL IR is triggered
-    if(IR_result[0] < IR_threshold[0]){
+    else if(IR_result[0] < IR_threshold[0]){
         Serial.println(" go back a bit and turn ccw -80 ~ -180");
         accelerate(-70);
         delay(500);
@@ -93,13 +96,19 @@ void loop(){
     }
 
     // if FR IR is triggered
-    if(IR_result[1] < IR_threshold[1]){
+    else if(IR_result[1] < IR_threshold[1]){
         Serial.println(" go back a bit and turn cw 80 ~ 180");
         accelerate(-70);
         delay(500);
         turn(100);
         delay(500);
     }
+
+    else{
+      accelerate(0);
+    }
+
+    
     // if(IR_result[1]>IR_threshold_FR){
     //     Serial.println("FR: yes");
     // }
