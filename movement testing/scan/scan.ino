@@ -12,7 +12,8 @@
 float result1;
 float result2;
 int speed;
-int threshold = 100;// 90 12 140 18
+int threshold = 500;// 90 12 140 18
+
 int i = 0;
 
 void setup(){
@@ -28,13 +29,15 @@ void loop(){
     result1 = Ping(ECHO_FF, TRIG_FF);
     result2 = Ping(ECHO_2, TRIG_2);
     Serial.print(result1);
-    if((result1 < threshold)&&(result2 < threshold)){
-        Serial.println(" accel");
-        accelerate(70);
-    }
-    else if(result1 > threshold){
-        Serial.println(" turn");
-        turn(70);
+    if(result1 != 0){
+        if(result1 < threshold){
+            Serial.println(" accel");
+            accelerate(70);
+        }
+        else if(result1 > threshold){
+            Serial.println(" turn");
+            turn(70);
+        }
     }
 }
 
