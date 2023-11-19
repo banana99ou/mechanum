@@ -39,6 +39,9 @@ void loop(){
             turn(70);
         }
     }
+    else if(result1 == 0){
+        turn(70);
+    }
 }
 
 void accelerate(int speed){
