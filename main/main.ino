@@ -31,7 +31,7 @@ int IR_threshold[4] = {1023, 1023, 1023, 1023};
 int i = 0; 
 
 void setup(){
-    Serial.begin(9600);
+    Serial.begin(115200);
 
     for(i=2; i<6; i++){
         pinMode(i, OUTPUT);
