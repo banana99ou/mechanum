@@ -3,11 +3,11 @@
 #define motor_FR_dir_Pin 4
 #define motor_FR_pwm_Pin 5
 
-#define TRIG_FF 11
-#define ECHO_FF 10
+#define TRIG_FF 16 //10
+#define ECHO_FF 17 //11
 
-#define TRIG_2 12
-#define ECHO_2 13
+#define TRIG_2 14
+#define ECHO_2 15
 
 float result1;
 float result2;
