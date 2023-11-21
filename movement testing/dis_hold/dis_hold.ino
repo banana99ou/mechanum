@@ -3,33 +3,129 @@
 #define motor_FR_dir_Pin 4
 #define motor_FR_pwm_Pin 5
 
-#define TRIG_FF 10
-#define ECHO_FF 11
+#define TRIG_FF 16 //10
+#define ECHO_FF 17 //11
+
+#define TRIG_2 14
+#define ECHO_2 15
 
 float result1;
+float result2;
 int speed;
-int threshold = 1000;// 90 12 140 18
+int threshold = 600;// 90 12 140 18
+
+#define IR_FL A0
+#define IR_FR A1
+#define IR_BL A6
+#define IR_BR A7
+
+// Threshold of IR sensors
+int IR_threshold_FL = 1023;
+int IR_threshold_FR = 1023;
+int IR_threshold_BL = 1023;
+int IR_threshold_BR = 1023;
+
+int IR_result[4];
+int IR_threshold[4] = {1023, 1023, 1023, 1023};
+
 int i = 0;
 
 void setup(){
-    Serial.begin(9600);
+    Serial.begin(115200);
+
     for(i=2; i<6; i++){
         pinMode(i, OUTPUT);
     }
     pinMode(TRIG_FF, OUTPUT);
     pinMode(ECHO_FF, INPUT);
+    pinMode(IR_FL, INPUT);
+    pinMode(IR_FR, INPUT);
+    // pinMode(IR_BL, INPUT);
+    // pinMode(IR_BR, INPUT);
+
+    // calibrate IR sensor
+    for(i=0; i<20; i++){
+        // use lowest value in current situation
+        IR_result[0] = analogRead(IR_FL);
+        IR_result[1] = analogRead(IR_FR);
+        // IR_result[2] = analogRead(IR_BL);
+        // IR_result[3] = analogRead(IR_BR);
+      
+        if(IR_threshold[0] > IR_result[0]){
+            IR_threshold[0] = IR_result[0] - 80;
+        }
+        if(IR_threshold[1] > IR_result[1]){
+            IR_threshold[1] = IR_result[1] - 80;
+        }
+        // if(IR_threshold[2] > IR_result[2]){
+        //     IR_threshold[2] = IR_result[2] - 80;
+        // }
+        // if(IR_threshold[3] > IR_result[3]){
+        //     IR_threshold[3] = IR_result[3] - 80;
+        // }
+
+        // print IR threshold
+        Serial.print("IR Calibrated: ");
+        Serial.print(IR_threshold[0]);
+        Serial.print(IR_result[0]);
+        Serial.print(", ");
+        Serial.println(IR_threshold[1]);
+        // Serial.print(", ");
+        // Serial.print(IR_threshold[2]);
+        // Serial.print(", ");
+        // Serial.println(IR_threshold[3]);
+
+        delay(50);
+    }
 }
 
 void loop(){
+    // look for target with sonar
     result1 = Ping(ECHO_FF, TRIG_FF);
-    Serial.print(result1);
-    Serial.print(", corrected: ");
-    result1 = 0.86298*result1 + 4.49465;
+    result2 = Ping(ECHO_2, TRIG_2);
+
     speed = result1 - threshold;
-    accelerate(speed*0.5);
+    speed = constrain(speed, -254, 254);
+    accelerate(speed);
     Serial.print(result1);
     Serial.print(", speed: ");
-    Serial.println(speed*0.5);
+    Serial.println(speed);
+
+    // after course set, look for obstacle
+    IR_result[0] = analogRead(IR_FL);
+    IR_result[1] = analogRead(IR_FR);
+    // IR_result[2] = analogRead(IR_BL);
+    // IR_result[3] = analogRead(IR_BR);
+
+    Serial.print(", IR_result ");
+    Serial.println(IR_result[0]);
+    
+    // if both front IR is triggered
+    if((IR_result[0] < IR_threshold[0]) && (IR_result[1] < IR_threshold[1])){
+        Serial.println(" go back a bit and turn 180 degrees");
+        accelerate(-70);
+        delay(500);
+        turn(-100);
+        delay(500);
+    }
+
+    // if FL IR is triggered
+    else if(IR_result[0] < IR_threshold[0]){
+        Serial.println(" go back a bit and turn ccw -80 ~ -180");
+        accelerate(-70);
+        delay(500);
+        turn(-100);
+        delay(500);
+    }
+
+    // if FR IR is triggered
+    else if(IR_result[1] < IR_threshold[1]){
+        Serial.println(" go back a bit and turn cw 80 ~ 180");
+        accelerate(-70);
+        delay(500);
+        turn(100);
+        delay(500);
+    }
 }
 
 void accelerate(int speed){
@@ -161,8 +257,7 @@ int Ping(int echo, int trig) {
     delayMicroseconds(10);
     digitalWrite(trig, LOW);
     // Reads the echoPin, returns the sound wave travel time in microseconds
-    duration = pulseIn(echo, HIGH, 2000);
-    // Calculating the distance
+    duration = pulseIn(echo, HIGH, 50000); // timeout of 50000 microseconds approx 8.5m
     distance = duration * 0.34 / 2;  // Speed of sound wave divided by 2 (go and back)
     return (distance);               //mm
 }
