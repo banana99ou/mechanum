@@ -1,15 +1,23 @@
-#define TRIG_FF 11
-#define ECHO_FF 10
+#define TRIG_FF 16 //10
+#define ECHO_FF 17 //11
+
+#define TRIG_2 14
+#define ECHO_2 15
 
 void setup() {
   Serial.begin(9600);
   pinMode(TRIG_FF, OUTPUT);
   pinMode(ECHO_FF, INPUT);
+  pinMode(TRIG_2, OUTPUT);
+  pinMode(ECHO_2, INPUT);
 }
 
 void loop() {
   int result1 = Ping(ECHO_FF, TRIG_FF);
-  Serial.println(result1);
+  int result2 = Ping(ECHO_2, TRIG_2);
+  Serial.print(result1);
+  Serial.print(", ");
+  Serial.println(result2);
   result1 = 0.9248*result1 - 10.04;
 }
 
