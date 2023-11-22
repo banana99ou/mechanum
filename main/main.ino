@@ -6,13 +6,13 @@
 #define TRIG_FF 16 //10
 #define ECHO_FF 17 //11
 
-#define TRIG_2 14
-#define ECHO_2 15
+#define TRIG_2 41
+#define ECHO_2 40
 
 float result1;
 float result2;
 int speed;
-int threshold = 500;// 90 12 140 18
+int threshold = 500;// about 1000 should be right
 
 #define IR_FL A0
 #define IR_FR A1
@@ -88,8 +88,10 @@ void loop(){
 
     if(result1 != 0){
         if(result1 < threshold){
-            Serial.println(" accel");
-            accelerate(70);
+            Serial.print(" accel: ");
+            speed = constrain((threshold - result1), 0, 100);
+            Serial.println(speed);
+            accelerate(speed);
         }
         else if(result1 > threshold){
             Serial.println(" turn");
