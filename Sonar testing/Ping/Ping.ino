@@ -1,5 +1,5 @@
-#define TRIG_FF 16 //10
-#define ECHO_FF 17 //11
+#define TRIG_FF 9 //10
+#define ECHO_FF 8 //11
 
 #define TRIG_2 14
 #define ECHO_2 15
