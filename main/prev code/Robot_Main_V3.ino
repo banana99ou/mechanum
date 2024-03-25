@@ -6,6 +6,7 @@ upon initialization it will check if theres something infront to determin rematc
 reset my position after ir response
 check if wawypoint is in the feild
 */
+// define Pin for each sensor
 #define PI 3.1415926535897932384626433832795
 #define IR_FL A4
 #define IR_FR A5
@@ -34,36 +35,40 @@ check if wawypoint is in the feild
 float field_radius = 1500;
 int rematch_condition = 600; //mm
 bool rematch = false;
-int IR_threshold_FL = 0; //need calibration //calibration function added
-int IR_threshold_FR = 0; 
-int IR_threshold_BL = 0; 
-int IR_threshold_BR = 0; 
+
+// pid stuff for motor
+int pos_ch1 = 0;  // left motor position
+int pos_ch2 = 0;
+int target_ch1 = 0; // left motor position target
+int target_ch2 = 0;
+long prevT = 0;       // previous time
+float preve_ch1 = 0;  // previous error
+float preve_ch2 = 0;
+float eintegral_ch1 = 0; //error integral
+float eintegral_ch2 = 0;
+int ppr = 459;  // pulse per revolution
+
 int Ping_bias = 0;
 int sonardata;
+int i = 0;
 
 float MY_pos[2] = {0, 0};
 float MY_heading = 90;
 float EM_pos[2] = {0, 0};
 float EM_heading = 270;
 
-//ch1 left
-//ch2 right
-int pos_ch1 = 0; //motor position
-int pos_ch2 = 0;
-int target_ch1 = 0;
-int target_ch2 = 0;
-long prevT = 0; //previous time
-float preve_ch1 = 0; //previous error
-float preve_ch2 = 0;
-float eintegral_ch1 = 0; //error integral
-float eintegral_ch2 = 0;
-
 float turn = 0; //amount to turn in degree
 
-int ppr = 459; //pulse per revolution of encoder
+// Threshold of IR sensors
+int IR_threshold_FL = 0;
+int IR_threshold_FR = 0;
+int IR_threshold_BL = 0;
+int IR_threshold_BR = 0;
 
 void setup(){
     Serial.begin(9600);
+    
+    // set pinMode
     pinMode(MASTER_ARM, INPUT);
     pinMode(ENCA_ch1, INPUT);
     pinMode(ENCB_ch1, INPUT);
@@ -77,10 +82,14 @@ void setup(){
     pinMode(dir1, OUTPUT);
     pinMode(pwm2, OUTPUT);
     pinMode(dir2, OUTPUT);
+    
+    // Inturrupt for Motor encoder
     attachInterrupt(digitalPinToInterrupt(ENCA_ch1), readEncoderch1, RISING);
     attachInterrupt(digitalPinToInterrupt(ENCA_ch2), readEncoderch2, RISING);
 
+    // initialize IR sensor threshold
     for(i=0; i<20; i++){
+        // use lowest value in current situation
         if(IR_threshold_FL < analogRead(IR_FL)){
             IR_threshold_FL = analogRead(IR_FL) + 100;
         }
@@ -93,6 +102,8 @@ void setup(){
         if(IR_threshold_BR < analogRead(IR_BR)){
             IR_threshold_BR = analogRead(IR_BR) + 100;
         }
+
+        // print IR threshold
         Serial.print("IR Calibrating ");
         Serial.print(IR_threshold_FL);
         Serial.print(" ");
@@ -103,6 +114,7 @@ void setup(){
         Serial.println(IR_threshold_BR);
     }
 
+    // wait for arm switch
     while(true) {
         Serial.print("waiting for switch");
         if (digitalRead(MASTER_ARM) == 1){ //wait until MASTER_ARM is armed
@@ -110,8 +122,11 @@ void setup(){
             break;
         }
     }
+
+    // check if in rematch situation
+    // else -> rematch
     if (sonardata < rematch_condition) {
-        //rematch
+        // if enemy is infront when start -> rematch
         rematch = true;
         MY_pos[0] = 0;  //mm 
         MY_pos[1] = 250;
@@ -119,7 +134,7 @@ void setup(){
         EM_pos[1] = -250;
     }
     else{
-        //attack vector
+        // else -> rematch
         rematch = false;
         MY_pos[0] = 950;  //mm 
         MY_pos[1] = 0;
@@ -135,9 +150,12 @@ void loop(){
     prevT = currT;
 
     //enemy detection
+    // ping all direction
     int result1 = Ping(ECHO_FF, TRIG_FF);
     int result2 = Ping(ECHO_L, TRIG_L);
     int result3 = Ping(ECHO_R, TRIG_R);
+
+    // resister target position with sonar result
     if (result1 > Ping_bias) {
         // if ((Ping(ECHO_FL, TRIG_FL) > Ping_bias) && (Ping(ECHO_FR, TRIG_FR) < Ping_bias)){
             
