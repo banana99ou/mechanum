@@ -12,11 +12,11 @@
 
 # milestone
 ## bare minimum
-- [ ] movement system (+test pushing force)
+- [x] movement system (+test pushing force)
 - [x] wall/target detection with sonar
-- [ ] floor detection with IR
+- [x] floor detection with IR
 ------------
 ## advanced concept
 - [x] scaning motion
-- [ ] attack speed
+- [x] attack speed
 - [ ] front weapon
