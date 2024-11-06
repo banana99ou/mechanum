@@ -3,8 +3,8 @@
 #define motor_FR_dir_Pin 4
 #define motor_FR_pwm_Pin 5
 
-#define TRIG_FF 16 //10
-#define ECHO_FF 17 //11
+#define TRIG_FF 9 //10
+#define ECHO_FF 8 //11
 
 #define TRIG_2 41
 #define ECHO_2 40
@@ -12,7 +12,7 @@
 float result1;
 float result2;
 int speed;
-int threshold = 500;// about 1000 should be right
+int threshold = 1600;// about 1000 should be right
 
 #define IR_FL A0
 #define IR_FR A1
@@ -77,6 +77,7 @@ void setup(){
 
         delay(50);
     }
+    turn(50);
 }
 
 void loop(){
@@ -89,14 +90,20 @@ void loop(){
     if(result1 != 0){
         if(result1 < threshold){
             Serial.print(" accel: ");
-            speed = constrain((threshold - result1), 0, 100);
+            speed = 70;// constrain((threshold - result1), 50, 100);
             Serial.println(speed);
             accelerate(speed);
         }
-        else if(result1 > threshold){
-            Serial.println(" turn");
-            turn(70);
+        if(result1 < 150){
+          accelerate(254);
         }
+    }
+    else if(result1 > threshold){
+        Serial.println(" turn");
+        turn(70);
+    }
+    if(result1 == 0){
+      turn(70);
     }
 
     // after course set, look for obstacle
@@ -114,7 +121,7 @@ void loop(){
         accelerate(-70);
         delay(500);
         turn(-100);
-        delay(500);
+        delay(700);
     }
 
     // if FL IR is triggered
