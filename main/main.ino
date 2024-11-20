@@ -1,18 +1,18 @@
-#define motor_FL_dir_Pin 2
-#define motor_FL_pwm_Pin 3
-#define motor_FR_dir_Pin 4
-#define motor_FR_pwm_Pin 5
+#define motor_FL_dir_Pin 4
+#define motor_FL_pwm_Pin 5
+#define motor_FR_dir_Pin 6
+#define motor_FR_pwm_Pin 7
 
-#define TRIG_FF 9 //10
-#define ECHO_FF 8 //11
+#define TRIG_FF 23 //10
+#define ECHO_FF 22 //11
 
-#define TRIG_2 41
-#define ECHO_2 40
+#define TRIG_2 25
+#define ECHO_2 24
 
 float result1;
 float result2;
 int speed;
-int threshold = 1600;// about 1000 should be right
+int Sonar_threshold = 500;// about 1000 should be right
 
 #define IR_FL A0
 #define IR_FR A1
@@ -38,6 +38,8 @@ void setup(){
     }
     pinMode(TRIG_FF, OUTPUT);
     pinMode(ECHO_FF, INPUT);
+    pinMode(TRIG_2, OUTPUT);
+    pinMode(ECHO_2, INPUT);
     pinMode(IR_FL, INPUT);
     pinMode(IR_FR, INPUT);
     // pinMode(IR_BL, INPUT);
@@ -88,7 +90,7 @@ void loop(){
     // Serial.print(result2);
 
     if(result1 != 0){
-        if(result1 < threshold){
+        if(result1 < Sonar_threshold){
             Serial.print(" accel: ");
             speed = 70;// constrain((threshold - result1), 50, 100);
             Serial.println(speed);
@@ -97,11 +99,12 @@ void loop(){
         if(result1 < 150){
           accelerate(254);
         }
+        else if(result1 > Sonar_threshold){
+          Serial.println(" turn");
+          turn(140);
+        }
     }
-    else if(result1 > threshold){
-        Serial.println(" turn");
-        turn(70);
-    }
+    
     if(result1 == 0){
       turn(70);
     }
@@ -176,12 +179,12 @@ void accelerate(int speed){
     speed = constrain(speed, -254, 254);
 
     if(speed<0){ // set dir pin low when speed is smaller than 0
-        digitalWrite(motor_FL_dir_Pin, LOW);
-        digitalWrite(motor_FR_dir_Pin, LOW);
-    }
-    else if(speed>0){
         digitalWrite(motor_FL_dir_Pin, HIGH);
         digitalWrite(motor_FR_dir_Pin, HIGH);
+    }
+    else if(speed>0){
+        digitalWrite(motor_FL_dir_Pin, LOW);
+        digitalWrite(motor_FR_dir_Pin, LOW);
     }
     else{   // set motor speed to 0 when speed is 0
         analogWrite(motor_FL_pwm_Pin, 0);
@@ -200,12 +203,12 @@ void turn(int speed){
     speed = constrain(speed, -254, 254);
 
     if(speed<0){ // turn left when speed is smaller than 0
-        digitalWrite(motor_FL_dir_Pin, LOW);  // left side go backward
-        digitalWrite(motor_FR_dir_Pin, HIGH); // right side go forward
+        digitalWrite(motor_FL_dir_Pin, HIGH);  // left side go backward
+        digitalWrite(motor_FR_dir_Pin, LOW); // right side go forward
     }
     else if(speed>0){
-        digitalWrite(motor_FL_dir_Pin, HIGH);
-        digitalWrite(motor_FR_dir_Pin, LOW);
+        digitalWrite(motor_FL_dir_Pin, LOW);
+        digitalWrite(motor_FR_dir_Pin, HIGH);
     }
     else{   // set motor speed to 0 when speed is 0
         analogWrite(motor_FL_pwm_Pin, 0);
@@ -238,23 +241,23 @@ void move(int speed, int turn_radius){
     if(abs(turn_radius)>wheel_width){
         // turning point is outside of robot -> all wheels go forward
         if(speed<0){ // set dir pin low when speed is smaller than 0
-            digitalWrite(motor_FL_dir_Pin, LOW);
-            digitalWrite(motor_FR_dir_Pin, LOW);
-        }
-        else if(speed>0){
             digitalWrite(motor_FL_dir_Pin, HIGH);
             digitalWrite(motor_FR_dir_Pin, HIGH);
+        }
+        else if(speed>0){
+            digitalWrite(motor_FL_dir_Pin, LOW);
+            digitalWrite(motor_FR_dir_Pin, LOW);
         }
     }
     else if(abs(turn_radius)<wheel_width){
         // turning point is inside of robot -> 
         if(speed<0){ // turn left when speed is smaller than 0
-            digitalWrite(motor_FL_dir_Pin, HIGH);  // left side go backward
-            digitalWrite(motor_FR_dir_Pin, LOW); // right side go forward
+            digitalWrite(motor_FL_dir_Pin, LOW);  // left side go backward
+            digitalWrite(motor_FR_dir_Pin, HIGH); // right side go forward
         }
         else if(speed>0){
-            digitalWrite(motor_FL_dir_Pin, LOW);
-            digitalWrite(motor_FR_dir_Pin, HIGH);
+            digitalWrite(motor_FL_dir_Pin, HIGH);
+            digitalWrite(motor_FR_dir_Pin, LOW);
         }
     }
     else{   // set motor speed to 0 when speed is 0

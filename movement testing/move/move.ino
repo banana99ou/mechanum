@@ -66,12 +66,12 @@ void accelerate(int speed){
     speed = constrain(speed, -254, 254);
 
     if(speed<0){ // set dir pin low when speed is smaller than 0
-        digitalWrite(motor_FL_dir_Pin, LOW);
-        digitalWrite(motor_FR_dir_Pin, LOW);
-    }
-    else if(speed>0){
         digitalWrite(motor_FL_dir_Pin, HIGH);
         digitalWrite(motor_FR_dir_Pin, HIGH);
+    }
+    else if(speed>0){
+        digitalWrite(motor_FL_dir_Pin, LOW);
+        digitalWrite(motor_FR_dir_Pin, LOW);
     }
     else{   // set motor speed to 0 when speed is 0
         analogWrite(motor_FL_pwm_Pin, 0);
@@ -90,12 +90,12 @@ void turn(int speed){
     speed = constrain(speed, -254, 254);
 
     if(speed<0){ // turn left when speed is smaller than 0
-        digitalWrite(motor_FL_dir_Pin, LOW);  // left side go backward
-        digitalWrite(motor_FR_dir_Pin, HIGH); // right side go forward
+        digitalWrite(motor_FL_dir_Pin, HIGH);  // left side go backward
+        digitalWrite(motor_FR_dir_Pin, LOW); // right side go forward
     }
     else if(speed>0){
-        digitalWrite(motor_FL_dir_Pin, HIGH);
-        digitalWrite(motor_FR_dir_Pin, LOW);
+        digitalWrite(motor_FL_dir_Pin, LOW);
+        digitalWrite(motor_FR_dir_Pin, HIGH);
     }
     else{   // set motor speed to 0 when speed is 0
         analogWrite(motor_FL_pwm_Pin, 0);
@@ -128,23 +128,23 @@ void move(int speed, int turn_radius){
     if(abs(turn_radius)>wheel_width){
         // turning point is outside of robot -> all wheels go forward
         if(speed<0){ // set dir pin low when speed is smaller than 0
-            digitalWrite(motor_FL_dir_Pin, LOW);
-            digitalWrite(motor_FR_dir_Pin, LOW);
-        }
-        else if(speed>0){
             digitalWrite(motor_FL_dir_Pin, HIGH);
             digitalWrite(motor_FR_dir_Pin, HIGH);
+        }
+        else if(speed>0){
+            digitalWrite(motor_FL_dir_Pin, LOW);
+            digitalWrite(motor_FR_dir_Pin, LOW);
         }
     }
     else if(abs(turn_radius)<wheel_width){
         // turning point is inside of robot -> 
         if(speed<0){ // turn left when speed is smaller than 0
-            digitalWrite(motor_FL_dir_Pin, HIGH);  // left side go backward
-            digitalWrite(motor_FR_dir_Pin, LOW); // right side go forward
+            digitalWrite(motor_FL_dir_Pin, LOW);  // left side go backward
+            digitalWrite(motor_FR_dir_Pin, HIGH); // right side go forward
         }
         else if(speed>0){
-            digitalWrite(motor_FL_dir_Pin, LOW);
-            digitalWrite(motor_FR_dir_Pin, HIGH);
+            digitalWrite(motor_FL_dir_Pin, HIGH);
+            digitalWrite(motor_FR_dir_Pin, LOW);
         }
     }
     else{   // set motor speed to 0 when speed is 0
