@@ -45,7 +45,7 @@ void setup() {
     pinMode(IR_BR, INPUT);
 
     // Calibrate IR sensors
-    for (i = 0; i < 20; i++) {
+    for (i=0; i<20; i++) {
         IR_result[0] = analogRead(IR_FL);
         IR_result[1] = analogRead(IR_FR);
         IR_result[2] = analogRead(IR_BL);
@@ -112,6 +112,14 @@ void loop() {
     IR_result[2] = analogRead(IR_BL);
     IR_result[3] = analogRead(IR_BR);
 
+    for (i=0; i<4; i++) {
+        Serial.print(IR_result[i]);
+        Serial.print(" ");
+        Serial.print(IR_threshold[i]);
+        Serial.print(" ");
+    }
+    Serial.println("");
+
     // Check front IR sensors
     if ((IR_result[0] < IR_threshold[0]) && (IR_result[1] < IR_threshold[1])) {
         Serial.println("Front IR: Both triggered, turning 180 degrees");
@@ -142,13 +150,15 @@ void loop() {
         delay(500);
         turn(100);
         delay(700);
-    } else if (IR_result[2] < IR_threshold[2]) {
+    } 
+    else if (IR_result[2] < IR_threshold[2]) {
         Serial.println("Back IR: BL triggered, turning CW");
         accelerate(150);
         delay(500);
         turn(100);
         delay(500);
-    } else if (IR_result[3] < IR_threshold[3]) {
+    } 
+    else if (IR_result[3] < IR_threshold[3]) {
         Serial.println("Back IR: BR triggered, turning CCW");
         accelerate(150);
         delay(500);
@@ -166,10 +176,12 @@ void accelerate(int speed) {
     if (speed < 0) { // Set dir pin low when speed is smaller than 0
         digitalWrite(motor_FL_dir_Pin, HIGH);
         digitalWrite(motor_FR_dir_Pin, HIGH);
-    } else if (speed > 0) {
+    } 
+    else if (speed > 0) {
         digitalWrite(motor_FL_dir_Pin, LOW);
         digitalWrite(motor_FR_dir_Pin, LOW);
-    } else { // Set motor speed to 0 when speed is 0
+    } 
+    else { // Set motor speed to 0 when speed is 0
         analogWrite(motor_FL_pwm_Pin, 0);
         analogWrite(motor_FR_pwm_Pin, 0);
     }
@@ -178,15 +190,19 @@ void accelerate(int speed) {
 }
 
 void turn(int speed) {
+    // speed > 0 => CW
+    // speed < 0 => CCW
     speed = constrain(speed, -254, 254);
 
     if (speed < 0) { // Turn left when speed is smaller than 0
         digitalWrite(motor_FL_dir_Pin, HIGH);  // Left side go backward
         digitalWrite(motor_FR_dir_Pin, LOW);   // Right side go forward
-    } else if (speed > 0) {
+    } 
+    else if (speed > 0) {
         digitalWrite(motor_FL_dir_Pin, LOW);
         digitalWrite(motor_FR_dir_Pin, HIGH);
-    } else { // Set motor speed to 0 when speed is 0
+    } 
+    else { // Set motor speed to 0 when speed is 0
         analogWrite(motor_FL_pwm_Pin, 0);
         analogWrite(motor_FR_pwm_Pin, 0);
     }
@@ -216,22 +232,22 @@ void move(int speed, int turn_radius){
     int leftside_speed = 0;
     if(abs(turn_radius)>wheel_width){
         // turning point is outside of robot -> all wheels go forward
-        if(speed<0){ // set dir pin low when speed is smaller than 0
+        if(speed < 0){ // set dir pin low when speed is smaller than 0
             digitalWrite(motor_FL_dir_Pin, HIGH);
             digitalWrite(motor_FR_dir_Pin, HIGH);
         }
-        else if(speed>0){
+        else if(speed > 0){
             digitalWrite(motor_FL_dir_Pin, LOW);
             digitalWrite(motor_FR_dir_Pin, LOW);
         }
     }
     else if(abs(turn_radius)<wheel_width){
         // turning point is inside of robot -> 
-        if(speed<0){ // turn left when speed is smaller than 0
+        if(speed < 0){ // turn left when speed is smaller than 0
             digitalWrite(motor_FL_dir_Pin, LOW);  // left side go backward
             digitalWrite(motor_FR_dir_Pin, HIGH); // right side go forward
         }
-        else if(speed>0){
+        else if(speed > 0){
             digitalWrite(motor_FL_dir_Pin, HIGH);
             digitalWrite(motor_FR_dir_Pin, LOW);
         }
