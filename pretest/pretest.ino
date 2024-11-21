@@ -80,91 +80,77 @@ void setup() {
 }
 
 void loop() {
-    // Look for target with sonar (front and back)
-    result1 = Ping(ECHO_F, TRIG_F);
-    result2 = Ping(ECHO_B, TRIG_B);
-    Serial.print("SONAR_F: ");
-    Serial.print(result1);
-    Serial.print(" SONAR_B: ");
-    Serial.println(result2);
+  // Look for target with sonar (front and back)
+  result1 = Ping(ECHO_F, TRIG_F);
+  result2 = Ping(ECHO_B, TRIG_B);
+  Serial.print("SONAR_F: ");
+  Serial.print(result1);
+  Serial.print(" SONAR_B: ");
+  Serial.println(result2);
 
-    if (result1 != 0 && result1 < Sonar_threshold) {
-        Serial.println("Front obstacle detected");
-        accelerate(170);
-        if(result1 < 150){
-          accelerate(255);
-        }
-    } 
-    else if (result2 != 0 && result2 < Sonar_threshold) {
-        Serial.println("Back obstacle detected");
-        accelerate(-170);
+  if ((result1 != 0) && (result1 < Sonar_threshold)) {
+    if (result1 < result2) {
+      Serial.println("Front obstacle detected");
+      accelerate(170);
+      if(result1 < 150){
+        accelerate(255);
+      }
+    }
+  } 
+  else if ((result2 != 0) && (result2 < Sonar_threshold)) {
+    if (result1 > result2) {
+      Serial.println("Back obstacle detected");
+      accelerate(-170);
         if(result2 < 150){
           accelerate(-255);
         }
-    } 
-    else {
-        turn(70);
     }
+  }
+  else {
+    move(255, 450);
+  }
 
-    // Look out for clifs
-    IR_result[0] = analogRead(IR_FL);
-    IR_result[1] = analogRead(IR_FR);
-    IR_result[2] = analogRead(IR_BL);
-    IR_result[3] = analogRead(IR_BR);
+  // Look out for clifs
+  IR_result[0] = analogRead(IR_FL);
+  IR_result[1] = analogRead(IR_FR);
+  IR_result[2] = analogRead(IR_BL);
+  IR_result[3] = analogRead(IR_BR);
 
-    for (i=0; i<4; i++) {
-        Serial.print(IR_result[i]);
-        Serial.print(" ");
-        Serial.print(IR_threshold[i]);
-        Serial.print(" ");
-    }
-    Serial.println("");
+  for (i=0; i<4; i++) {
+    Serial.print(IR_result[i]);
+    Serial.print(" ");
+    Serial.print(IR_threshold[i]);
+    Serial.print(" ");
+  }
+  Serial.println("");
 
-    // Check front IR sensors
-    if ((IR_result[0] < IR_threshold[0]) && (IR_result[1] < IR_threshold[1])) {
-        Serial.println("Front IR: Both triggered, turning 180 degrees");
-        accelerate(-150);
-        delay(500);
-        turn(-100);
-        delay(700);
-    } 
-    else if (IR_result[0] < IR_threshold[0]) {
-        Serial.println("Front IR: FL triggered, turning CCW");
-        accelerate(-150);
-        delay(500);
-        turn(-100);
-        delay(500);
-    } 
-    else if (IR_result[1] < IR_threshold[1]) {
-        Serial.println("Front IR: FR triggered, turning CW");
-        accelerate(-150);
-        delay(500);
-        turn(100);
-        delay(500);
-    }
+  // Check front IR sensors
+  if ((IR_result[0] < IR_threshold[0]) && (IR_result[1] < IR_threshold[1])) {
+    Serial.println("Front IR: Both triggered, turning 180 degrees");
+    move(-255, -450);
+  } 
+  else if (IR_result[0] < IR_threshold[0]) {
+    Serial.println("Front IR: FL triggered, turning CCW");
+    move(-255, 450);
+  } 
+  else if (IR_result[1] < IR_threshold[1]) {
+    Serial.println("Front IR: FR triggered, turning CW");
+    move(-255, -450);
+  }
 
-    // Check back IR sensors
-    if ((IR_result[2] < IR_threshold[2]) && (IR_result[3] < IR_threshold[3])) {
-        Serial.println("Back IR: Both triggered, moving forward and turning 180 degrees");
-        accelerate(150);
-        delay(500);
-        turn(100);
-        delay(700);
-    } 
-    else if (IR_result[2] < IR_threshold[2]) {
-        Serial.println("Back IR: BL triggered, turning CW");
-        accelerate(150);
-        delay(500);
-        turn(100);
-        delay(500);
-    } 
-    else if (IR_result[3] < IR_threshold[3]) {
-        Serial.println("Back IR: BR triggered, turning CCW");
-        accelerate(150);
-        delay(500);
-        turn(-100);
-        delay(500);
-    }
+  // Check back IR sensors
+  if ((IR_result[2] < IR_threshold[2]) && (IR_result[3] < IR_threshold[3])) {
+    Serial.println("Back IR: Both triggered, moving forward and turning 180 degrees");
+    move(255, 450);
+  } 
+  else if (IR_result[2] < IR_threshold[2]) {
+    Serial.println("Back IR: BL triggered, turning CW");
+    move(255, -450);
+  } 
+  else if (IR_result[3] < IR_threshold[3]) {
+    Serial.println("Back IR: BR triggered, turning CCW");
+    move(255, 450);
+  }
 }
 
 void accelerate(int speed) {
@@ -192,7 +178,7 @@ void accelerate(int speed) {
 void turn(int speed) {
     // speed > 0 => CW
     // speed < 0 => CCW
-    speed = constrain(speed, -254, 254);
+    speed = constrain(speed, -255, 255);
 
     if (speed < 0) { // Turn left when speed is smaller than 0
         digitalWrite(motor_FL_dir_Pin, HIGH);  // Left side go backward
@@ -225,12 +211,16 @@ void move(int speed, int turn_radius){
     if turn_radius -> infinity then go forward
     */
 
+    Serial.print(speed);
+    Serial.print(" ");
+    Serial.print(turn_radius);
+
     speed = constrain(speed, -254, 254);
 
-    int wheel_width = 392;
+    int wheel_width = 231;
     int rightside_speed = 0;
     int leftside_speed = 0;
-    if(abs(turn_radius)>wheel_width){
+    if(abs(turn_radius) > wheel_width){
         // turning point is outside of robot -> all wheels go forward
         if(speed < 0){ // set dir pin low when speed is smaller than 0
             digitalWrite(motor_FL_dir_Pin, HIGH);
@@ -240,15 +230,42 @@ void move(int speed, int turn_radius){
             digitalWrite(motor_FL_dir_Pin, LOW);
             digitalWrite(motor_FR_dir_Pin, LOW);
         }
+        else { // Set motor speed to 0 when speed is 0
+        analogWrite(motor_FL_pwm_Pin, 0);
+        analogWrite(motor_FR_pwm_Pin, 0);
+        }
     }
-    else if(abs(turn_radius)<wheel_width){
+    else if((abs(turn_radius) < wheel_width) && (turn_radius != 0)){
         // turning point is inside of robot -> 
-        if(speed < 0){ // turn left when speed is smaller than 0
-            digitalWrite(motor_FL_dir_Pin, LOW);  // left side go backward
-            digitalWrite(motor_FR_dir_Pin, HIGH); // right side go forward
+        if(turn_radius > 0){
+          if(speed < 0){ // turn left when speed is smaller than 0
+              digitalWrite(motor_FL_dir_Pin, HIGH);  // left side go backward
+              digitalWrite(motor_FR_dir_Pin, LOW); // right side go forward
+          }
+          else if(speed > 0){
+              digitalWrite(motor_FL_dir_Pin, LOW);
+              digitalWrite(motor_FR_dir_Pin, HIGH);
+          }
+        }
+        else if(turn_radius < 0){
+          if(speed < 0){ // turn left when speed is smaller than 0
+              digitalWrite(motor_FL_dir_Pin, LOW);  // left side go backward
+              digitalWrite(motor_FR_dir_Pin, HIGH); // right side go forward
+          }
+          else if(speed > 0){
+              digitalWrite(motor_FL_dir_Pin, HIGH);
+              digitalWrite(motor_FR_dir_Pin, LOW);
+          }
+        }
+    }
+    else if(turn_radius == 0){
+        // turning point is inside of robot -> 
+        if(speed < 0){ // set dir pin low when speed is smaller than 0
+            digitalWrite(motor_FL_dir_Pin, HIGH);
+            digitalWrite(motor_FR_dir_Pin, HIGH);
         }
         else if(speed > 0){
-            digitalWrite(motor_FL_dir_Pin, HIGH);
+            digitalWrite(motor_FL_dir_Pin, LOW);
             digitalWrite(motor_FR_dir_Pin, LOW);
         }
     }
@@ -257,19 +274,19 @@ void move(int speed, int turn_radius){
         analogWrite(motor_FR_pwm_Pin, 0);
     }
     // Serial.println(turn_radius);
-    if(turn_radius > 0){
+    if(turn_radius < 0){
         // Serial.println(">0");
         // turning point to the right -> left side should turn faster
         // rightside + leftside = speed 
         // rightside/leftside = (2R+w)/(2R-w)
-        rightside_speed = 2*(abs(turn_radius)-wheel_width/2)*3.14*abs(speed)/(4*3.14*abs(turn_radius));
-        leftside_speed = 2*(abs(turn_radius)+wheel_width/2)*3.14*abs(speed)/(4*3.14*abs(turn_radius));
+        rightside_speed = ((abs(turn_radius)-wheel_width/2)*3.14*abs(speed));
+        leftside_speed = ((abs(turn_radius)+wheel_width/2)*3.14*abs(speed));
     }
-    else if(turn_radius < 0){
+    else if(turn_radius > 0){
         // Serial.println("<0");
         // turning point to the left -> right side should turn faster
-        rightside_speed = 2*(abs(turn_radius)+wheel_width/2)*3.14*abs(speed)/(4*3.14*abs(turn_radius));
-        leftside_speed = 2*(abs(turn_radius)-wheel_width/2)*3.14*abs(speed)/(4*3.14*abs(turn_radius));
+        rightside_speed = ((abs(turn_radius)+wheel_width/2)*3.14*abs(speed));
+        leftside_speed = ((abs(turn_radius)-wheel_width/2)*3.14*abs(speed));
     }
     else if(turn_radius == 0){
         // turning point to the left -> right side should turn faster
