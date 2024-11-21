@@ -11,7 +11,7 @@
 float result1;
 float result2;
 int speed;
-int Sonar_threshold = 500; // about 1000 should be right
+int Sonar_threshold = 520; // about 1000 should be right
 
 #define IR_FL A0
 #define IR_FR A1
@@ -76,7 +76,7 @@ void setup() {
 
         delay(50);
     }
-    turn(50);
+    turn(200);
 }
 
 void loop() {
@@ -107,7 +107,7 @@ void loop() {
     }
   }
   else {
-    move(255, 450);
+    turn(200);
   }
 
   // Look out for clifs
@@ -157,7 +157,7 @@ void accelerate(int speed) {
     // accelerate to int speed
     // -255 <= speed <= 255
     
-    speed = constrain(speed, -255, 255);
+    speed = constrain(speed, -254, 254);
 
     if (speed < 0) { // Set dir pin low when speed is smaller than 0
         digitalWrite(motor_FL_dir_Pin, HIGH);
@@ -178,7 +178,7 @@ void accelerate(int speed) {
 void turn(int speed) {
     // speed > 0 => CW
     // speed < 0 => CCW
-    speed = constrain(speed, -255, 255);
+    speed = constrain(speed, -254, 254);
 
     if (speed < 0) { // Turn left when speed is smaller than 0
         digitalWrite(motor_FL_dir_Pin, HIGH);  // Left side go backward
