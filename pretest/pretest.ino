@@ -52,16 +52,16 @@ void setup() {
         IR_result[3] = analogRead(IR_BR);
 
         if (IR_threshold[0] > IR_result[0]) {
-            IR_threshold[0] = IR_result[0] - 80;
+            IR_threshold[0] = IR_result[0] + 80;
         }
         if (IR_threshold[1] > IR_result[1]) {
-            IR_threshold[1] = IR_result[1] - 80;
+            IR_threshold[1] = IR_result[1] + 80;
         }
         if (IR_threshold[2] > IR_result[2]) {
-            IR_threshold[2] = IR_result[2] - 80;
+            IR_threshold[2] = IR_result[2] + 80;
         }
         if (IR_threshold[3] > IR_result[3]) {
-            IR_threshold[3] = IR_result[3] - 80;
+            IR_threshold[3] = IR_result[3] + 80;
         }
 
         // Print IR thresholds
@@ -125,31 +125,31 @@ void loop() {
   Serial.println("");
 
   // Check front IR sensors
-  if ((IR_result[0] < IR_threshold[0]) && (IR_result[1] < IR_threshold[1])) {
+  if ((IR_result[0] > IR_threshold[0]) && (IR_result[1] > IR_threshold[1])) {
     Serial.println("Front IR: Both triggered, turning 180 degrees");
-    move(-255, -450);
+    move(-255, -350);
   } 
-  else if (IR_result[0] < IR_threshold[0]) {
+  else if (IR_result[0] > IR_threshold[0]) {
     Serial.println("Front IR: FL triggered, turning CCW");
-    move(-255, 450);
+    move(-255, -350);
   } 
-  else if (IR_result[1] < IR_threshold[1]) {
+  else if (IR_result[1] > IR_threshold[1]) {
     Serial.println("Front IR: FR triggered, turning CW");
-    move(-255, -450);
+    move(-255, 350);
   }
 
   // Check back IR sensors
-  if ((IR_result[2] < IR_threshold[2]) && (IR_result[3] < IR_threshold[3])) {
+  if ((IR_result[2] > IR_threshold[2]) && (IR_result[3] > IR_threshold[3])) {
     Serial.println("Back IR: Both triggered, moving forward and turning 180 degrees");
-    move(255, 450);
+    move(255, 350);
   } 
-  else if (IR_result[2] < IR_threshold[2]) {
+  else if (IR_result[2] > IR_threshold[2]) {
     Serial.println("Back IR: BL triggered, turning CW");
-    move(255, -450);
+    move(255, -350);
   } 
-  else if (IR_result[3] < IR_threshold[3]) {
+  else if (IR_result[3] > IR_threshold[3]) {
     Serial.println("Back IR: BR triggered, turning CCW");
-    move(255, 450);
+    move(255, 350);
   }
 }
 
